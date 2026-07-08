@@ -364,7 +364,7 @@ export default function App() {
   };
 
   const gradeOne = async (q, a) => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/grade` ||'http://localhost:29999/api/grade', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/grade`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: q, answer: a }),
@@ -376,7 +376,7 @@ export default function App() {
     setBusy(true);
     appendLines([makeLine('output', 'pinging server...')]);
     try {
-      const response = await fetch('http://localhost:2999/api/hello');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/hello`);
       const result = await response.json();
       console.log(result.message);
       appendLines([makeLine('ok', `[ok] server responded: ${result.message}`)]);
