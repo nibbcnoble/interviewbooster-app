@@ -38,6 +38,7 @@ const HELP_LINES = [
   '  interview start --q=<number>    run a mock interview with <number> questions',
   '  interview cancel                abort an interview in progress',
   '  interview save                  download graded Q&A as a markdown file',
+  '  hello                           ping the server to test the connection',
   '  clear                           clear the screen',
   '  help                            show this message',
   '',
@@ -363,12 +364,28 @@ export default function App() {
   };
 
   const gradeOne = async (q, a) => {
-    const response = await fetch('http://localhost:2999/api/grade', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/grade` ||'http://localhost:29999/api/grade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: q, answer: a }),
     });
     return response.json();
+  };
+
+  const runHello = async () => {
+    setBusy(true);
+    appendLines([makeLine('output', 'pinging server...')]);
+    try {
+      const response = await fetch('http://localhost:2999/api/hello');
+      const result = await response.json();
+      console.log(result.message);
+      appendLines([makeLine('ok', `[ok] server responded: ${result.message}`)]);
+    } catch (err) {
+      console.error(err);
+      appendLines([makeLine('error', `error: could not reach server (${err.message})`)]);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const runExec = async () => {
@@ -652,6 +669,10 @@ export default function App() {
     }
     if (cmd === 'help') {
       appendLines(HELP_LINES.map((l) => makeLine('help', l)));
+      return;
+    }
+    if (cmd === 'hello') {
+      runHello();
       return;
     }
     if (/^interview\s+start\s*$/.test(cmd)) {
