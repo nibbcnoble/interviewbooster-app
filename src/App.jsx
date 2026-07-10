@@ -596,6 +596,7 @@ export default function App() {
   };
 
   const gradeOne = async (q, a) => {
+    console.log('grade URL:', `${import.meta.env.VITE_API_URL}/api/grade`);
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/grade`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -605,6 +606,7 @@ export default function App() {
   };
 
   const runHello = async () => {
+    console.log('hello URL:', `${import.meta.env.VITE_API_URL}/api/hello`);
     setBusy(true);
     appendLines([makeLine('output', 'pinging server...')]);
     try {
@@ -1160,7 +1162,7 @@ export default function App() {
           boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
           display: 'flex',
           flexDirection: 'column',
-          height: 'min(92vh, 1200px)',
+          height: 'min(88vh, 1200px)',
         }}
       >
         {/* title bar */}
@@ -1186,7 +1188,7 @@ export default function App() {
               letterSpacing: '0.02em',
             }}
           >
-            interview-grader — bash —
+            interview-booster — bash —
           </span>
           {interview && (
             <span style={{ marginLeft: 'auto', color: COLORS.amber, fontSize: '0.75rem' }}>
