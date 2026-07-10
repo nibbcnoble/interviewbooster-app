@@ -40,6 +40,7 @@ const HELP_LINES = [
   '  interview save                  download graded Q&A as a markdown file',
   '  hello                           ping the server to test the connection',
   '  clear                           clear the screen',
+  '  logout                          sign out and return to the login screen',
   '  help                            show this message',
   '',
   'tip: use ↑ / ↓ to move through command history',
@@ -294,6 +295,193 @@ const ANSWER_POOL = [
   "The shared responsibility model defines which security and operational tasks are handled by the cloud provider versus the customer. Generally, the provider is responsible for the security 'of' the cloud, like physical data center security and the underlying infrastructure, while the customer is responsible for security 'in' the cloud, like configuring access controls, encrypting their data, and patching their own applications. Understanding where that line falls is critical, since a common cause of cloud breaches is customers assuming the provider handles something that was actually their responsibility.",
 ];
 
+// small brand marks, drawn at the geometry/colors each company publishes
+// for third-party sign-in buttons specifically
+function MicrosoftMark() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <rect x="0" y="0" width="7.2" height="7.2" fill="#F25022" />
+      <rect x="8.4" y="0" width="7.2" height="7.2" fill="#7FBA00" />
+      <rect x="0" y="8.4" width="7.2" height="7.2" fill="#00A4EF" />
+      <rect x="8.4" y="8.4" width="7.2" height="7.2" fill="#FFB900" />
+    </svg>
+  );
+}
+
+function GoogleMark() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+      <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9C16.66 14.2 17.64 11.94 17.64 9.2z" />
+      <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.94v2.33A9 9 0 0 0 9 18z" />
+      <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.94A9 9 0 0 0 0 9c0 1.45.35 2.83.94 4.03l3.01-2.33z" />
+      <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .94 4.97l3.01 2.33C4.66 5.17 6.65 3.58 9 3.58z" />
+    </svg>
+  );
+}
+
+function TerminalFrame({ children, statusLabel }) {
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        background: COLORS.bg,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 'clamp(0.5rem, 3vw, 2rem)',
+        boxSizing: 'border-box',
+        fontFamily:
+          '"JetBrains Mono", "Fira Code", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace',
+      }}
+    >
+      <style>{`
+        @keyframes term-blink {
+          0%, 49% { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+        .oauth-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.65rem;
+          width: 300px;
+          padding: 0.65rem 0.85rem;
+          background: ${COLORS.bg};
+          border: 1px solid ${COLORS.panelBorder};
+          border-radius: 6px;
+          color: ${COLORS.text};
+          font-family: inherit;
+          font-size: 0.85rem;
+          text-decoration: none;
+          cursor: pointer;
+          transition: border-color 0.15s ease, background 0.15s ease;
+        }
+        .oauth-btn:hover, .oauth-btn:focus-visible {
+          border-color: ${COLORS.amber};
+          background: ${COLORS.titlebar};
+          outline: none;
+        }
+        .oauth-btn .prompt { color: ${COLORS.amber}; }
+        .oauth-btn .cmd-text { color: ${COLORS.textMuted}; margin-left: auto; font-size: 0.78rem; }
+      `}</style>
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '420px',
+          background: COLORS.panel,
+          border: `1px solid ${COLORS.panelBorder}`,
+          borderRadius: '10px',
+          overflow: 'hidden',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div
+          style={{
+            background: COLORS.titlebar,
+            borderBottom: `1px solid ${COLORS.panelBorder}`,
+            padding: '0.6rem 0.8rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
+          <span style={{ width: 11, height: 11, borderRadius: '50%', background: COLORS.dot, display: 'inline-block' }} />
+          <span style={{ width: 11, height: 11, borderRadius: '50%', background: COLORS.dot, display: 'inline-block' }} />
+          <span style={{ width: 11, height: 11, borderRadius: '50%', background: COLORS.dot, display: 'inline-block' }} />
+          <span style={{ marginLeft: '0.5rem', color: COLORS.textMuted, fontSize: '0.8rem', letterSpacing: '0.02em' }}>
+            interview-grader — auth —
+          </span>
+          {statusLabel && (
+            <span style={{ marginLeft: 'auto', color: COLORS.amber, fontSize: '0.75rem' }}>{statusLabel}</span>
+          )}
+        </div>
+        <div style={{ padding: '1.4rem 1.3rem' }}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function LoginScreen() {
+  return (
+    <TerminalFrame statusLabel="401">
+      <div style={{ color: COLORS.textDim, fontSize: '0.8rem', lineHeight: 1.6, marginBottom: '1.1rem' }}>
+        <div>$ whoami</div>
+        <div style={{ color: COLORS.error }}>authentication required</div>
+      </div>
+
+      <div style={{ color: COLORS.text, fontSize: '0.9rem', marginBottom: '1rem' }}>
+        Sign in to continue
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+        <a className="oauth-btn" href="/api/auth/login/microsoft">
+          <MicrosoftMark />
+          <span>Sign in with Microsoft</span>
+          <span className="cmd-text prompt">↵</span>
+        </a>
+        <a className="oauth-btn" href="/api/auth/login/google">
+          <GoogleMark />
+          <span>Sign in with Google</span>
+          <span className="cmd-text prompt">↵</span>
+        </a>
+      </div>
+
+      <div
+        style={{
+          marginTop: '1.4rem',
+          paddingTop: '0.9rem',
+          borderTop: `1px solid ${COLORS.panelBorder}`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+          color: COLORS.textMuted,
+          fontSize: '0.8rem',
+        }}
+      >
+        <span style={{ color: COLORS.amber }}>$</span>
+        <span>waiting for authentication</span>
+        <span
+          aria-hidden
+          style={{
+            width: '7px',
+            height: '1em',
+            background: COLORS.cursor,
+            animation: 'term-blink 1s step-start infinite',
+            display: 'inline-block',
+          }}
+        />
+      </div>
+    </TerminalFrame>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <TerminalFrame>
+      <div style={{ color: COLORS.text, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span>checking session</span>
+        <span
+          aria-hidden
+          style={{
+            width: '7px',
+            height: '1em',
+            background: COLORS.cursor,
+            animation: 'term-blink 1s step-start infinite',
+            display: 'inline-block',
+          }}
+        />
+      </div>
+    </TerminalFrame>
+  );
+}
+
+// Auth state used to live in a separate AuthGuard wrapper with its own
+// internal status, which meant App had no access to who was logged in.
+// It's now managed directly in App below so the terminal can print the
+// user's email and the "logout" command can actually reset the gate.
+
+
+
 // looks up the model answer for a given question by matching it against
 // QUESTION_POOL (index-aligned with ANSWER_POOL). returns undefined if the
 // question text doesn't come from the pool (e.g. a freeform "-q" question).
@@ -334,6 +522,11 @@ export default function App() {
   // used by "interview save" to build the downloadable markdown report
   const [sessionResults, setSessionResults] = useState([]);
 
+  // auth gate state — 'loading' while checking the session, then 'authed' or 'anon'
+  const [authStatus, setAuthStatus] = useState('loading');
+  const [user, setUser] = useState(null);
+  const bannerPrinted = useRef(false);
+
   const inputRef = useRef(null);
   const scrollRef = useRef(null);
 
@@ -342,6 +535,45 @@ export default function App() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [log]);
+
+  // check session on mount
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+          setAuthStatus('authed');
+        } else {
+          setAuthStatus('anon');
+        }
+      })
+      .catch(() => setAuthStatus('anon'));
+  }, []);
+
+  // once we know who's logged in, print the banner exactly once — this
+  // fires after the initial HELP_LINES are already in the log, so it
+  // shows up as the first "live" line rather than replacing the help text
+  useEffect(() => {
+    if (authStatus === 'authed' && user && !bannerPrinted.current) {
+      bannerPrinted.current = true;
+      appendLines([makeLine('ok', `Logged in as ${user.email}`)]);
+    }
+  }, [authStatus, user]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (err) {
+      console.error('Logout request failed:', err);
+    }
+    // reset regardless of whether the request itself succeeded — if the
+    // network call failed, the safest UI state is still "logged out" so
+    // the person isn't left staring at a terminal with a dead session
+    bannerPrinted.current = false;
+    setUser(null);
+    setAuthStatus('anon');
+  };
 
   const focusInput = () => inputRef.current && inputRef.current.focus();
 
@@ -675,6 +907,10 @@ export default function App() {
       runHello();
       return;
     }
+    if (cmd === 'logout') {
+      handleLogout();
+      return;
+    }
     if (/^interview\s+start\s*$/.test(cmd)) {
       startInterview();
       return;
@@ -881,6 +1117,9 @@ export default function App() {
         return null;
     }
   };
+
+  if (authStatus === 'loading') return <LoadingScreen />;
+  if (authStatus === 'anon') return <LoginScreen />;
 
   return (
     <div
