@@ -6,6 +6,7 @@ import { useAuth } from './hooks/useAuth';
 import { useTerminalLog } from './hooks/useTerminalLog';
 import { useCommandHistory } from './hooks/useCommandHistory';
 import { useInterviewModule } from './modules/interview/useInterviewModule';
+import { useBeatlesModule } from './modules/beatles/useBeatlesModule';
 
 // Printed once on load, before the session check even resolves.
 const BANNER_LINES = [
@@ -47,8 +48,9 @@ export default function App() {
   // Everything else (help text, command dispatch, capture-mode routing,
   // the title-bar badge) picks it up automatically. See
   // modules/moduleContract.js for the shape each hook must return.
-  const interviewModule = useInterviewModule({ appendLines, makeLine, busy, setBusy });
-  const modules = [interviewModule];
+const interviewModule = useInterviewModule({ appendLines, makeLine, busy, setBusy });
+const beatlesModule = useBeatlesModule({ appendLines, makeLine, busy, setBusy });
+const modules = [interviewModule, beatlesModule];
 
   // seed the scrollback with banner + help text exactly once
   useEffect(() => {
