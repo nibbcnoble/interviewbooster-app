@@ -254,25 +254,14 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
       saveInterview();
       return true;
     }
-    if (/^interview\s+-q\s+/.test(cmd)) {
-      const q = extractQuoted(cmd.replace(/^interview\s+-q\s+/, ''));
-      setQuestion(q);
-      appendLines([makeLine('ok', `[ok] question loaded (${q.length} chars)`)]);
-      return true;
-    }
-    if (/^interview\s+-a\s+/.test(cmd)) {
-      const a = extractQuoted(cmd.replace(/^interview\s+-a\s+/, ''));
-      setAnswer(a);
-      appendLines([makeLine('ok', `[ok] answer loaded (${a.length} chars)`)]);
-      return true;
-    }
+   
     if (/^interview\s+exec\s*$/.test(cmd)) {
       runExec();
       return true;
     }
     if (/^interview\s*$/.test(cmd)) {
       appendLines([
-        makeLine('error', 'usage: interview -q "..." | interview -a "..." | interview exec | interview start [--q=<number>]'),
+        makeLine('error', 'usage: interview exec | interview start [--q=<number>]'),
       ]);
       return true;
     }

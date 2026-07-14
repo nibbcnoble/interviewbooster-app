@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import './App.css';
 import LoadingScreen from './components/LoadingScreen';
 import LoginScreen from './components/LoginScreen';
-import Terminal from './components/Terminal';
+import TabBar from './components/TabBar';
+import InterviewPage from './pages/InterviewPage';
+import StudyPage from './pages/StudyPage';
+import DocsPage from './pages/DocsPage';
 import { useAuth } from './hooks/useAuth';
 import { useTerminalLog } from './hooks/useTerminalLog';
 import { useCommandHistory } from './hooks/useCommandHistory';
@@ -10,7 +15,7 @@ import { useBeatlesModule } from './modules/beatles/useBeatlesModule';
 
 // Printed once on load, before the session check even resolves.
 const BANNER_LINES = [
-  'interview-grader v1.1.0 — technical answer grading shell',
+  'Welcome, this is a shell for my ai projects.  See the docs for how this works.',
   '',
   'available commands:',
 ];
@@ -19,7 +24,7 @@ const BANNER_LINES = [
 // commands (e.g. "interview ...") are documented by each module's own
 // helpLines and appended below this list when "help" runs.
 const CORE_HELP_LINES = [
-  'hello                           ping the server to test the connection',
+
   'clear                           clear the screen',
   'logout                          sign out and return to the login screen',
   'help                            show this message',
@@ -34,7 +39,7 @@ function buildInitialLog(makeLine, modules) {
 
 export default function App() {
   const { log, appendLines, makeLine, clear, scrollRef } = useTerminalLog();
-  const { authStatus, logout } = useAuth({ appendLines, makeLine });
+  const { authStatus, logout, user } = useAuth({ appendLines, makeLine });
   const { push: pushHistory, recallUp, recallDown } = useCommandHistory();
 
   const [input, setInput] = useState('');
@@ -48,9 +53,9 @@ export default function App() {
   // Everything else (help text, command dispatch, capture-mode routing,
   // the title-bar badge) picks it up automatically. See
   // modules/moduleContract.js for the shape each hook must return.
-const interviewModule = useInterviewModule({ appendLines, makeLine, busy, setBusy });
-const beatlesModule = useBeatlesModule({ appendLines, makeLine, busy, setBusy });
-const modules = [interviewModule, beatlesModule];
+  const interviewModule = useInterviewModule({ appendLines, makeLine, busy, setBusy });
+  const beatlesModule = useBeatlesModule({ appendLines, makeLine, busy, setBusy });
+  const modules = [interviewModule, beatlesModule];
 
   // seed the scrollback with banner + help text exactly once
   useEffect(() => {
@@ -158,8 +163,10 @@ const modules = [interviewModule, beatlesModule];
 
   const capturingModule = modules.find((m) => m.capturing);
 
-  return (
-    <Terminal
+  // Interview tab needs the full terminal state/handlers; Study and Docs
+  // are self-contained stubs for now and don't need any of this.
+  const interviewElement = (
+    <InterviewPage
       log={log}
       scrollRef={scrollRef}
       input={input}
@@ -172,5 +179,20 @@ const modules = [interviewModule, beatlesModule];
       promptLabel={capturingModule?.promptLabel ?? '$'}
       placeholder={capturingModule?.placeholder ?? 'interview -q "..."'}
     />
+  );
+
+  return (
+    <>
+      <TabBar onLogout={handleLogout} userEmail={user?.email} />
+      <Routes>
+        {/* hostname/ and hostname/interview both render the Interview tab */}
+        <Route path="/" element={interviewElement} />
+        <Route path="/interview" element={interviewElement} />
+        <Route path="/study" element={<StudyPage />} />
+        <Route path="/docs" element={<DocsPage />} />
+        {/* anything unrecognized falls back to the default tab */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }

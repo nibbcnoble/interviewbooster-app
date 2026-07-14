@@ -5,12 +5,32 @@ import { COLORS } from '../theme/colors';
 // its own visual treatment (e.g. a future module's own result card).
 export default function TerminalLine({ line }) {
   switch (line.kind) {
-    case 'help':
+    case 'help': {
+      const text = line.content || '';
+      // Command lines are authored as "command<lots of spaces>description"
+      // for column alignment on wide screens — and the command itself can
+      // be multiple words (e.g. "interview john"), so split on the run of
+      // padding spaces itself rather than the first word boundary. That
+      // padding is what wraps badly on mobile, so we split it into two
+      // stacked lines instead. Anything without that padding (section
+      // headers, the tip line, blank spacer lines) just renders as-is.
+      const parts = text.split(/\s{2,}/);
+      if (parts.length >= 2) {
+        const [command, ...rest] = parts;
+        const description = rest.join(' ');
+        return (
+          <div style={{ margin: '0.3rem 0' }}>
+            <div style={{ color: COLORS.text }}>{command}</div>
+            <div style={{ color: COLORS.textDim, paddingLeft: '1rem' }}>{description}</div>
+          </div>
+        );
+      }
       return (
         <div style={{ color: COLORS.textDim, whiteSpace: 'pre-wrap' }}>
-          {line.content || '\u00A0'}
+          {text || '\u00A0'}
         </div>
       );
+    }
     case 'input':
       return (
         <div style={{ color: COLORS.text }}>
