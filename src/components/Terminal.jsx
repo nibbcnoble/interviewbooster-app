@@ -23,7 +23,6 @@ export default function Terminal({
   return (
     <div
       style={{
-        minHeight: '100vh',
         width: '100%',
         background: COLORS.bg,
         display: 'flex',
@@ -58,7 +57,7 @@ export default function Terminal({
           boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
           display: 'flex',
           flexDirection: 'column',
-          height: 'min(88vh, 1200px)',
+          height: 'min(80vh, 1200px)',
         }}
       >
         {/* title bar */}
