@@ -26,7 +26,7 @@ function AccountIcon() {
   );
 }
 
-export default function TabBar({ onLogout, userEmail }) {
+export default function TabBar({ onLogout, userEmail, isAuthed }) {
   const { pathname } = useLocation();
   const [accountOpen, setAccountOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -110,25 +110,27 @@ export default function TabBar({ onLogout, userEmail }) {
         })}
       </div>
 
-      <div className="tab-bar-actions" ref={accountRef}>
-        <button
-          type="button"
-          className="icon-btn"
-          onClick={() => setAccountOpen((v) => !v)}
-          aria-expanded={accountOpen}
-          aria-label="Account menu"
-        >
-          <AccountIcon />
-        </button>
-        {accountOpen && (
-          <div className="dropdown-menu dropdown-menu-right">
-            <div className="dropdown-menu-label">Signed in as: {userEmail}</div>
-            <button type="button" className="dropdown-item" onClick={handleLogoutClick}>
-              Log out
-            </button>
-          </div>
-        )}
-      </div>
+      {isAuthed && (
+        <div className="tab-bar-actions" ref={accountRef}>
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={() => setAccountOpen((v) => !v)}
+            aria-expanded={accountOpen}
+            aria-label="Account menu"
+          >
+            <AccountIcon />
+          </button>
+          {accountOpen && (
+            <div className="dropdown-menu dropdown-menu-right">
+              <div className="dropdown-menu-label">Signed in as: {userEmail}</div>
+              <button type="button" className="dropdown-item" onClick={handleLogoutClick}>
+                Log out
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 }

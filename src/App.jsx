@@ -158,10 +158,16 @@ export default function App() {
     }
   };
 
+  // Only the loading state blocks the whole app (avoids a flash of content
+  // before the session check resolves). Auth is otherwise enforced per-route
+  // below, so "/" and "/docs" stay public and everything else requires login.
   if (authStatus === 'loading') return <LoadingScreen />;
-  if (authStatus === 'anon') return <LoginScreen />;
 
+  const isAuthed = authStatus !== 'anon';
   const capturingModule = modules.find((m) => m.capturing);
+
+  // Wraps a gated page: renders it if authed, otherwise bounces to login.
+  const requireAuth = (element) => (isAuthed ? element : <LoginScreen />);
 
   // Interview tab needs the full terminal state/handlers; Study and Docs
   // are self-contained stubs for now and don't need any of this.
@@ -183,14 +189,17 @@ export default function App() {
 
   return (
     <>
-      <TabBar onLogout={handleLogout} userEmail={user?.email} />
+      <TabBar onLogout={handleLogout} userEmail={user?.email} isAuthed={isAuthed} />
       <Routes>
-        {/* hostname/ and hostname/interview both render the Interview tab */}
+        {/* public */}
         <Route path="/" element={<DocsPage />} />
-        <Route path="/interview" element={interviewElement} />
-        <Route path="/study" element={<StudyPage />} />
         <Route path="/docs" element={<DocsPage />} />
-        {/* anything unrecognized falls back to the default tab */}
+
+        {/* gated */}
+        <Route path="/interview" element={requireAuth(interviewElement)} />
+        <Route path="/study" element={requireAuth(<StudyPage />)} />
+
+        {/* anything unrecognized falls back to the public default tab */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
