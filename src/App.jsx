@@ -186,7 +186,7 @@ export default function App() {
       <TabBar onLogout={handleLogout} userEmail={user?.email} />
       <Routes>
         {/* hostname/ and hostname/interview both render the Interview tab */}
-        <Route path="/" element={interviewElement} />
+        <Route path="/" element={<DocsPage />} />
         <Route path="/interview" element={interviewElement} />
         <Route path="/study" element={<StudyPage />} />
         <Route path="/docs" element={<DocsPage />} />

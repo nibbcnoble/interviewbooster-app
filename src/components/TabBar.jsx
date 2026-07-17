@@ -4,9 +4,9 @@ import { Link, useLocation } from 'react-router-dom';
 // Add new tabs here. `matchPaths` lets a tab claim more than one route
 // (e.g. Interview claims both "/" and "/interview").
 const TABS = [
-  { label: 'Interview', to: '/interview', matchPaths: ['/', '/interview'] },
+   { label: 'Docs', to: '/docs', matchPaths: ['/','/docs'] },
+  { label: 'Interview', to: '/interview', matchPaths: [ '/interview'] },
   { label: 'Study', to: '/study', matchPaths: ['/study'] },
-  { label: 'Docs', to: '/docs', matchPaths: ['/docs'] },
 ];
 
 function HamburgerIcon() {
