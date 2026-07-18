@@ -6,6 +6,7 @@ import LoginScreen from './components/LoginScreen';
 import TabBar from './components/TabBar';
 import InterviewPage from './pages/InterviewPage';
 import StudyPage from './pages/StudyPage';
+import StockPage from './pages/StocksPage';
 import DocsPage from './pages/DocsPage';
 import { useAuth } from './hooks/useAuth';
 import { useTerminalLog } from './hooks/useTerminalLog';
@@ -36,6 +37,7 @@ function buildInitialLog(makeLine, modules) {
   const lines = [...BANNER_LINES, ...CORE_HELP_LINES, ...modules.flatMap((m) => m.helpLines), '', TIP_LINE];
   return lines.map((l) => makeLine('help', l));
 }
+export { buildInitialLog };
 
 export default function App() {
   const { log, appendLines, makeLine, clear, scrollRef } = useTerminalLog();
@@ -198,6 +200,7 @@ export default function App() {
         {/* gated */}
         <Route path="/interview" element={requireAuth(interviewElement)} />
         <Route path="/study" element={requireAuth(<StudyPage />)} />
+        <Route path="/stocks" element={requireAuth(<StockPage />)} />
 
         {/* anything unrecognized falls back to the public default tab */}
         <Route path="*" element={<Navigate to="/" replace />} />

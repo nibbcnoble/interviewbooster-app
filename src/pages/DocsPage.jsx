@@ -126,6 +126,7 @@ export default function DocsPage() {
           font-size: clamp(28px, 4vw, 42px);
           margin: 0 0 12px;
           letter-spacing: -0.01em;
+          color:#222222;
         }
 
         .ib-docs__sub {

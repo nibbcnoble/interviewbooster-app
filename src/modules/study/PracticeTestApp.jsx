@@ -868,3 +868,6 @@ export default function PracticeTestApp() {
     </div>
   );
 }
+
+export { shuffleArray, normalizeQuestions, calculateScore };
+

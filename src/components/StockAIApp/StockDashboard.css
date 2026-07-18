@@ -1,0 +1,438 @@
+/* StockDashboard.css — restyled to match App.css’s dark/grey/orange look */
+
+:root {
+  /* pull in App.css palette */
+  --bg: rgb(27,29,27);
+  --panel: rgba(255,255,255,0.045);            /* var(--tab-surface) */
+  --panel-2: rgba(255,255,255,0.045);          /* same as panel for consistency */
+  --border: rgba(255,255,255,0.09);            /* var(--tab-border) */
+  --border-strong: rgba(254, 101, 0, 0.45);      /* var(--tab-orange-border) */
+  --text: #e4e4e4;                             /* var(--tab-grey-bright) */
+  --muted: #8a8a8a;                            /* var(--tab-grey) */
+  --accent: #ff8a3d;                           /* var(--tab-orange) */
+  --accent-2: rgba(223, 12, 255, 0.9);           /* var(--tab-orange-dim) */
+  --good: #5df2a0;                             /* keep your green */
+  --bad: #ff6b8b;                              /* keep your red */
+  --shadow: 0 0 10px rgba(255,138,61,0.16);    /* softer orange glow */
+  --topbar-h: 80px;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(circle at top, rgba(255,138,61,0.06), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(255,138,61,0.06), transparent 30%),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow: hidden;
+}
+
+.sd-root {
+  width: 100vw;
+  height: calc(100vh - var(--topbar-h));
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px;
+  padding: 10px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Shared panels */
+.sd-sidebar,
+.sd-chart-panel,
+.sd-chat-panel {
+  background: #121212;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  min-width: 0;
+}
+
+.sd-sidebar {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sd-sidebar-header,
+.sd-chat-header,
+.sd-chart-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sd-kicker {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.05;
+  color:#FFFFFF;
+}
+
+h1 { font-size: 18px; }
+h2 { font-size: 14px; }
+
+.sd-auth-state {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sidebar controls */
+.sd-add-stock,
+.sd-chat-input {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.sd-add-stock input,
+.sd-chat-input input {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 9px 11px;
+  outline: none;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.sd-add-stock button,
+.sd-chat-input button,
+.sd-remove-btn,
+.sd-dropdown-btn {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sd-add-stock button,
+.sd-chat-input button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+}
+
+.sd-stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.sd-stock-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 11px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: var(--panel);
+  cursor: pointer;
+  transition: 0.16s ease;
+}
+
+.sd-stock-item:hover,
+.sd-stock-item.active {
+  border-color: var(--accent);
+
+}
+
+.sd-stock-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sd-stock-meta strong {
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.sd-stock-meta span {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sd-remove-btn {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+}
+
+.sd-main {
+  display: grid;
+  grid-template-rows: 2.1fr 1fr;
+  gap: 12px;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Chart panel */
+.sd-chart-panel {
+  padding: 12px 14px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sd-chart-topbar {
+  align-items: center;
+}
+
+.sd-chart-topbar > div:first-child {
+  min-width: 0;
+}
+
+.sd-chart-topbar h1 {
+  font-size: 15px;
+  font-weight: 650;
+  color: rgba(228, 228, 228, 0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sd-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.sd-price {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.sd-change.up { color: var(--good); }
+.sd-change.down { color: var(--bad); }
+
+.sd-timescales {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.sd-timescales button {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.sd-timescales button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sd-dropdown-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+}
+
+.sd-chart-wrap {
+  margin-top: 10px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  height: calc(100% - 60px);
+}
+
+.sd-chart {
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+}
+
+/* Chat panel */
+.sd-chat-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px 12px 10px;
+}
+
+.sd-chat-header {
+  margin-bottom: 2px;
+}
+
+.sd-chat-history {
+  margin-top: 6px;
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 4px;
+}
+
+.sd-chat-msg {
+  border: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.sd-chat-msg.user .sd-chat-badge,
+.sd-chat-msg.user .sd-chat-text {
+  color: var(--accent);
+}
+
+.sd-chat-msg.insight .sd-chat-badge,
+.sd-chat-msg.insight .sd-chat-text {
+  color: var(--accent-2);
+}
+
+.sd-chat-msg.answer .sd-chat-badge,
+.sd-chat-msg.answer .sd-chat-text {
+  color: var(--good);
+}
+
+.sd-chat-badge {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  opacity: 0.9;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.sd-chat-text {
+  font-size: 14px;
+  line-height: 1.0;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sd-chat-time {
+  font-size: 9px;
+  color: var(--muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.sd-chat-input {
+  margin-top: 8px;
+}
+
+.sd-chat-input input {
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  body { overflow: auto; }
+
+  .sd-root {
+    width: 100%;
+    height: calc(100vh - var(--topbar-h));
+    margin-top: var(--topbar-h);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    padding: 10px;
+    overflow: visible;
+  }
+
+  .sd-sidebar { max-height: 240px; }
+
+  .sd-main {
+    height: auto;
+    grid-template-rows: minmax(320px, auto) minmax(240px, 34vh);
+  }
+
+  .sd-chart-wrap { height: 300px; }
+  .sd-chat-text { white-space: nowrap; }
+}
+
+@media (max-width: 600px) {
+  .sd-root {
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .sd-sidebar { padding: 10px; }
+  .sd-chat-panel,
+  .sd-chart-panel { border-radius: 14px; }
+
+  .sd-chart-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sd-timescales {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+  }
+
+  .sd-stock-item { padding: 9px 10px; }
+  .sd-stock-meta strong { font-size: 11px; }
+  .sd-stock-meta span { font-size: 9px; }
+  .sd-price { font-size: 20px; }
+  .sd-chart-topbar h1 { font-size: 13px; }
+  .sd-chat-text { font-size: 11px; }
+  .sd-chat-badge,
+  .sd-chat-time { font-size: 8px; }
+}

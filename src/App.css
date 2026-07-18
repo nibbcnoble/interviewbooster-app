@@ -953,3 +953,10 @@ select.study-select option {
   gap: 12px;
   flex-wrap: wrap;
 }
+
+html,
+body,
+#root {
+  min-height: 100% !important;
+  overflow-y: auto !important;
+}

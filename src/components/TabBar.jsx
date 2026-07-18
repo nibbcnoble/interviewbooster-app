@@ -7,6 +7,7 @@ const TABS = [
    { label: 'Docs', to: '/docs', matchPaths: ['/','/docs'] },
   { label: 'Interview', to: '/interview', matchPaths: [ '/interview'] },
   { label: 'Study', to: '/study', matchPaths: ['/study'] },
+  { label: 'Stocks', to: '/stocks', matchPaths: ['/stocks'] },
 ];
 
 function HamburgerIcon() {
