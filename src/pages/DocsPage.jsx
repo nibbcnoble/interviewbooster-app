@@ -186,6 +186,7 @@ export default function DocsPage() {
           font-weight: 700;
           margin: 0 0 18px;
           letter-spacing: -0.01em;
+          color:#222222;
         }
 
         .ib-docs__p {
