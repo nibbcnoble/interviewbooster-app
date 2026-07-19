@@ -90,7 +90,7 @@ const FAQ: FaqItem[] = [
     a: [
       "Yes, of course. LLMs are great for building fast.",
       "The caveat: nothing ships that isn't understood. Code has to stay controlled and legible, or the fast part turns into a slow part — you end up debugging things you never read in the first place, instead of moving at a steady pace with real guardrails.",
-      "There's a balance to having an LLM cowork for you. This project is an attempt to actually find it.",
+      "There's a balance to having an LLM cowork for you!",
     ],
   },
 ];
@@ -370,16 +370,36 @@ export default function DocsPage() {
           .ib-docs__apps { grid-template-columns: 1fr; }
           .ib-docs__prompt-answer { padding-left: 16px; }
         }
+
+        .activework {
+          background:rgb(255, 224, 87);
+          border:1px solid #777777;
+          padding:10px;
+          border-radius:6px;
+        }
+
+        .ib-docs_updated_date {
+          color:#777777;
+          font-size:12px;
+        }
       `}</style>
 
       <header className="ib-docs__header">
         <p className="ib-docs__eyebrow">// docs</p>
         <h1 className="ib-docs__title">Portfolio of Jeffrey Charles Noble</h1>
         <p className="ib-docs__sub">
-          This application is a landing page and access point for a set of web
+          Thanks for coming by! This application is a landing page and access point for a set of web
           applications — most of them portfolio pieces, built to demonstrate
           real working knowledge rather than just describe it.
         </p>
+        <p className="ib-docs__sub activework">
+          Active work: I'm studying for the AZ-104: Microsoft Azure Administrator Associate certification.  
+          I'm also brushing up on some concepts in Labex and filling gaps in my knowledge.  Beyond that, I'm also 
+          applying some of my studies to building applications.  See below for more info.
+          <br/>
+          <span className="ib-docs_updated_date">updated: 7-19-2026</span>
+        </p>
+        
         <nav className="ib-docs__nav" aria-label="Sections">
           <a href="#why">why this exists</a>
           <a href="#architecture">architecture</a>
@@ -477,6 +497,16 @@ export default function DocsPage() {
               AZ-104 certification prompted a preliminary practice test
               application — and a good excuse to put a MongoDB in the
               portfolio.
+            </p>
+          </div>
+
+          <div className="ib-docs__app-card activework">
+            <h3>the stocks app</h3>
+            <p>
+              I'm not a stock bro, just putting that out there. I am still working on 
+              this application.  Currently I'm working out what type of ai model or system 
+              I'm planning on using.  Looking at MCP, Jepa and building out a RAG system for a single stock 
+              over a certain period of time.  
             </p>
           </div>
         </div>

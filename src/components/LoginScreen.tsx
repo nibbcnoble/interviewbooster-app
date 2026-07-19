@@ -11,7 +11,9 @@ export default function LoginScreen() {
       </div>
 
       <div style={{ color: COLORS.text, fontSize: '0.9rem', marginBottom: '1rem' }}>
-        Sign in to continue
+        Sign in to continue<br/>
+        
+        <span style={{color: COLORS.amber, fontSize: '0.75rem' }}>Note: Your email adress is never stored directly.</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>

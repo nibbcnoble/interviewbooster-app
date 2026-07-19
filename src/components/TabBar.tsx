@@ -137,7 +137,7 @@ export default function TabBar({ onLogout, userEmail, isAuthed }: TabBarProps) {
           {accountOpen && (
             <div className="dropdown-menu dropdown-menu-right">
               <div className="dropdown-menu-label">Signed in as: {userEmail}</div>
-              <button type="button" className="dropdown-item" onClick={handleLogoutClick}>
+              <button type="button" className="dropdown-item logout-button" onClick={handleLogoutClick}>
                 Log out
               </button>
             </div>

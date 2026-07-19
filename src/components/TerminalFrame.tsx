@@ -13,7 +13,7 @@ export interface TerminalFrameProps {
 export default function TerminalFrame({
   children,
   statusLabel,
-  title = 'interview-grader — auth —',
+  title = 'portfolio-projects — auth —',
 }: TerminalFrameProps) {
   return (
     <div
