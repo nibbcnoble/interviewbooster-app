@@ -1,13 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
+import type { Line } from '../lib/id';
+
+export type AuthStatus = 'loading' | 'authed' | 'anon';
+
+export interface AuthUser {
+  email: string;
+  [key: string]: unknown;
+}
+
+export interface UseAuthOptions {
+  appendLines?: (lines: Line[]) => void;
+  makeLine?: (kind: string, content: unknown) => Line;
+}
+
+export interface UseAuthResult {
+  authStatus: AuthStatus;
+  user: AuthUser | null;
+  logout: () => Promise<void>;
+}
 
 // Session-gate state: 'loading' while checking the session, then 'authed'
 // or 'anon'. appendLines/makeLine are optional so this hook can be used
 // both from the terminal app shell and from standalone pages/components.
 // If provided, the hook prints the "Logged in as ..." banner exactly once
 // when authStatus flips to 'authed'.
-export function useAuth({ appendLines, makeLine } = {}) {
-  const [authStatus, setAuthStatus] = useState('loading');
-  const [user, setUser] = useState(null);
+export function useAuth({ appendLines, makeLine }: UseAuthOptions = {}): UseAuthResult {
+  const [authStatus, setAuthStatus] = useState<AuthStatus>('loading');
+  const [user, setUser] = useState<AuthUser | null>(null);
   const bannerPrinted = useRef(false);
 
   useEffect(() => {
@@ -25,14 +44,13 @@ export function useAuth({ appendLines, makeLine } = {}) {
   }, []);
 
   useEffect(() => {
-    const canWriteBanner =
-      typeof appendLines === 'function' && typeof makeLine === 'function';
+    const canWriteBanner = typeof appendLines === 'function' && typeof makeLine === 'function';
 
     if (authStatus === 'authed' && user && !bannerPrinted.current) {
       bannerPrinted.current = true;
 
       if (canWriteBanner) {
-        appendLines([makeLine('ok', `Logged in as ${user.email}`)]);
+        appendLines!([makeLine!('ok', `Logged in as ${user.email}`)]);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

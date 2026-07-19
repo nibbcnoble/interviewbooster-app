@@ -1,30 +1,59 @@
 import { useState } from 'react';
-import { shuffle, extractQuoted } from '../../lib/textUtils';
+import { shuffle } from '../../lib/textUtils';
 import { downloadFile } from '../../lib/downloadFile';
 import { QUESTION_POOL, getCorrectAnswer } from './questionPool';
 import { gradeOne, gradeStyleFor } from './grading';
 import { buildMarkdownReport } from './report';
 import { INTERVIEW_HELP_LINES } from './helpText';
+import type { ModuleContract } from '../moduleContract';
+import type { Line } from '../../lib/id';
+
+interface ResultEntry {
+  question: string;
+  answer: string;
+  grade: number | null;
+  justification?: string | undefined;
+  correctAnswer?: string | undefined;
+  timestamp?: string;
+}
+
+interface InterviewState {
+  questions: string[];
+  idx: number;
+  results: ResultEntry[];
+}
+
+export interface UseInterviewModuleOptions {
+  appendLines: (lines: Line[]) => void;
+  makeLine: (kind: string, content: unknown) => Line;
+  busy: boolean;
+  setBusy: (busy: boolean) => void;
+}
 
 // Encapsulates every piece of state and command handling for the "interview"
 // module: loading a single Q/A pair and grading it, running a multi-question
 // mock interview, and exporting a session's results as markdown.
 //
 // Returns an object matching the module contract described in
-// modules/moduleContract.js — App.jsx doesn't need to know any of the
+// modules/moduleContract.ts — App.jsx doesn't need to know any of the
 // interview-specific details below, just how to call handleCommand /
 // handleCapturedInput and read the badge/prompt/placeholder.
-export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
-  const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
+export function useInterviewModule({
+  appendLines,
+  makeLine,
+  busy: _busy,
+  setBusy,
+}: UseInterviewModuleOptions): ModuleContract {
+  const [question] = useState('');
+  const [answer] = useState('');
 
   // interview mode: { questions: string[], idx: number, results: {question, answer, grade, justification}[] }
-  const [interview, setInterview] = useState(null);
+  const [interview, setInterview] = useState<InterviewState | null>(null);
 
   // running log of every graded question/answer this session (single execs
   // and interview rounds), used by "interview save" to build the
   // downloadable markdown report
-  const [sessionResults, setSessionResults] = useState([]);
+  const [sessionResults, setSessionResults] = useState<ResultEntry[]>([]);
 
   // ---- single question/answer grading ----
 
@@ -52,7 +81,7 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
         },
       ]);
 
-      const resultLines = [
+      const resultLines: Line[] = [
         makeLine('rule', '┌─ grading result ' + '─'.repeat(20)),
         makeLine('result-grade', { style, grade: result.grade }),
         makeLine('result-just', result.justification || '(no justification returned)'),
@@ -67,7 +96,7 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
 
       appendLines(resultLines);
     } catch (err) {
-      appendLines([makeLine('error', `error: ${err.message}`)]);
+      appendLines([makeLine('error', `error: ${(err as Error).message}`)]);
     } finally {
       setBusy(false);
     }
@@ -75,21 +104,21 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
 
   // ---- interview flow ----
 
-  const printQuestion = (idx, total, text) => {
+  const printQuestion = (idx: number, total: number, text: string) => {
     appendLines([
       makeLine('rule', ''),
       makeLine('question', { index: idx + 1, total, text }),
     ]);
   };
 
-  const startInterview = (count) => {
+  const startInterview = (count?: number) => {
     if (interview) {
       appendLines([makeLine('error', 'error: interview already in progress. finish it or run "interview cancel".')]);
       return;
     }
-    const requested = Number.isInteger(count) ? count : 10;
+    const requested = Number.isInteger(count) ? (count as number) : 10;
     const total = Math.max(1, Math.min(requested, QUESTION_POOL.length));
-    if (Number.isInteger(count) && (count < 1 || count > QUESTION_POOL.length)) {
+    if (Number.isInteger(count) && ((count as number) < 1 || (count as number) > QUESTION_POOL.length)) {
       appendLines([
         makeLine(
           'error',
@@ -105,7 +134,7 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
       makeLine('help', 'type your answer and press enter. run "interview cancel" to abort.'),
       makeLine('rule', '└' + '─'.repeat(38)),
     ]);
-    printQuestion(0, questions.length, questions[0]);
+    printQuestion(0, questions.length, questions[0] as string);
   };
 
   const cancelInterview = () => {
@@ -117,14 +146,14 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
     appendLines([makeLine('error', 'interview cancelled.')]);
   };
 
-  const finishInterview = (results) => {
+  const finishInterview = (results: ResultEntry[]) => {
     const gradesGiven = results.filter((r) => typeof r.grade === 'number');
     const avg = gradesGiven.length
-      ? gradesGiven.reduce((sum, r) => sum + r.grade, 0) / gradesGiven.length
+      ? gradesGiven.reduce((sum, r) => sum + (r.grade as number), 0) / gradesGiven.length
       : null;
     const overallStyle = avg !== null ? gradeStyleFor(Math.round(avg)) : gradeStyleFor(null);
 
-    const lines = [
+    const lines: Line[] = [
       makeLine('rule', ''),
       makeLine('rule', '┌─ interview complete ' + '─'.repeat(16)),
     ];
@@ -162,9 +191,9 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
     setInterview(null);
   };
 
-  const submitInterviewAnswer = async (answerText) => {
-    const current = interview;
-    const currentQuestion = current.questions[current.idx];
+  const submitInterviewAnswer = async (answerText: string) => {
+    const current = interview as InterviewState;
+    const currentQuestion = current.questions[current.idx] as string;
 
     appendLines([
       makeLine('answer-input', { index: current.idx + 1, total: current.questions.length, text: answerText }),
@@ -172,7 +201,7 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
     ]);
 
     setBusy(true);
-    let resultEntry;
+    let resultEntry: ResultEntry;
     try {
       const result = await gradeOne(currentQuestion, answerText);
       resultEntry = {
@@ -187,7 +216,7 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
         question: currentQuestion,
         answer: answerText,
         grade: null,
-        justification: `grading failed: ${err.message}`,
+        justification: `grading failed: ${(err as Error).message}`,
         correctAnswer: getCorrectAnswer(currentQuestion),
       };
     }
@@ -202,7 +231,7 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
     } else {
       setInterview({ ...current, idx: nextIdx, results: newResults });
       appendLines([makeLine('ok', `[ok] answer ${current.idx + 1} recorded`)]);
-      printQuestion(nextIdx, current.questions.length, current.questions[nextIdx]);
+      printQuestion(nextIdx, current.questions.length, current.questions[nextIdx] as string);
     }
   };
 
@@ -224,20 +253,20 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
       downloadFile(filename, markdown, 'text/markdown;charset=utf-8');
       appendLines([makeLine('ok', `[ok] saved ${sessionResults.length} graded answer(s) to ${filename}`)]);
     } catch (err) {
-      appendLines([makeLine('error', `error: could not save file — ${err.message}`)]);
+      appendLines([makeLine('error', `error: could not save file — ${(err as Error).message}`)]);
     }
   };
 
   // ---- module contract: command dispatch ----
 
-  const handleCommand = (cmd) => {
+  const handleCommand = (cmd: string): boolean => {
     if (/^interview\s+start\s*$/.test(cmd)) {
       startInterview();
       return true;
     }
     if (/^interview\s+start\s+--q=\d+\s*$/.test(cmd)) {
       const match = cmd.match(/--q=(\d+)/);
-      startInterview(parseInt(match[1], 10));
+      startInterview(parseInt((match as RegExpMatchArray)[1] as string, 10));
       return true;
     }
     if (/^interview\s+start\s+/.test(cmd)) {
@@ -254,7 +283,7 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
       saveInterview();
       return true;
     }
-   
+
     if (/^interview\s+exec\s*$/.test(cmd)) {
       runExec();
       return true;
@@ -273,7 +302,7 @@ export function useInterviewModule({ appendLines, makeLine, busy, setBusy }) {
   // *except* the two escape hatches below, which still need to work
   // mid-flow so the user isn't stuck until the interview ends.
 
-  const handleCapturedInput = (trimmed) => {
+  const handleCapturedInput = (trimmed: string) => {
     if (/^interview\s+cancel\s*$/.test(trimmed)) {
       appendLines([makeLine('input', trimmed)]);
       cancelInterview();

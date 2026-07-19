@@ -1,11 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+export interface TabBarProps {
+  onLogout: () => void;
+  userEmail?: string | undefined;
+  isAuthed: boolean;
+}
+
+interface Tab {
+  label: string;
+  to: string;
+  matchPaths: string[];
+}
+
 // Add new tabs here. `matchPaths` lets a tab claim more than one route
 // (e.g. Interview claims both "/" and "/interview").
-const TABS = [
-   { label: 'Docs', to: '/docs', matchPaths: ['/','/docs'] },
-  { label: 'Interview', to: '/interview', matchPaths: [ '/interview'] },
+const TABS: Tab[] = [
+  { label: 'Docs', to: '/docs', matchPaths: ['/', '/docs'] },
+  { label: 'Interview', to: '/interview', matchPaths: ['/interview'] },
   { label: 'Study', to: '/study', matchPaths: ['/study'] },
   { label: 'Stocks', to: '/stocks', matchPaths: ['/stocks'] },
 ];
@@ -27,18 +39,18 @@ function AccountIcon() {
   );
 }
 
-export default function TabBar({ onLogout, userEmail, isAuthed }) {
+export default function TabBar({ onLogout, userEmail, isAuthed }: TabBarProps) {
   const { pathname } = useLocation();
   const [accountOpen, setAccountOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const accountRef = useRef(null);
-  const navRef = useRef(null);
+  const accountRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
   // close the account menu on outside click
   useEffect(() => {
     if (!accountOpen) return;
-    const handleClick = (e) => {
-      if (accountRef.current && !accountRef.current.contains(e.target)) {
+    const handleClick = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
         setAccountOpen(false);
       }
     };
@@ -49,8 +61,8 @@ export default function TabBar({ onLogout, userEmail, isAuthed }) {
   // close the mobile nav menu on outside click
   useEffect(() => {
     if (!navOpen) return;
-    const handleClick = (e) => {
-      if (navRef.current && !navRef.current.contains(e.target)) {
+    const handleClick = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
         setNavOpen(false);
       }
     };
@@ -63,7 +75,7 @@ export default function TabBar({ onLogout, userEmail, isAuthed }) {
     onLogout();
   };
 
-  const isTabActive = (tab) => tab.matchPaths.includes(pathname);
+  const isTabActive = (tab: Tab) => tab.matchPaths.includes(pathname);
 
   return (
     <nav className="tab-bar">
@@ -125,7 +137,7 @@ export default function TabBar({ onLogout, userEmail, isAuthed }) {
           {accountOpen && (
             <div className="dropdown-menu dropdown-menu-right">
               <div className="dropdown-menu-label">Signed in as: {userEmail}</div>
-              <button type="button" className="dropdown-item" onClick={handleLogoutClick}>
+              <button type="button" className="dropdown-item logout-button" onClick={handleLogoutClick}>
                 Log out
               </button>
             </div>

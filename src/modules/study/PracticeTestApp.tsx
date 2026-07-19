@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "../../App.css";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -7,7 +7,12 @@ const EXAM_CONFIG = {
   examLabel: "AZ 104",
 };
 
-const DOMAINS = [
+interface Domain {
+  short: string;
+  long: string;
+}
+
+const DOMAINS: Domain[] = [
   {
     short: "identity_governance",
     long: "Manage Azure identities and governance",
@@ -33,20 +38,68 @@ const DOMAINS = [
 const RANDOM_COUNTS = [10, 25, 50, 100];
 const IDK_OPTION = "I don't know";
 
-function shuffleArray(arr) {
+interface RawQuestion {
+  _id?: string;
+  id?: string;
+  question_type?: string;
+  options?: string[];
+  question?: string;
+  correct_answer?: string;
+  explanation?: string;
+  domain?: string;
+}
+
+interface Question {
+  id: string;
+  question_type?: string;
+  options: string[];
+  question?: string;
+  correct_answer?: string;
+  explanation?: string;
+  domain?: string;
+}
+
+type Answers = Record<string, string>;
+
+interface DomainScore {
+  total: number;
+  correct: number;
+}
+
+interface Score {
+  total: number;
+  correct: number;
+  percent: number;
+  byDomain: Record<string, DomainScore>;
+}
+
+interface SavedProgress {
+  mode?: string;
+  answers?: Answers;
+  deliveredQuestions?: RawQuestion[];
+  submittedTest?: boolean;
+  currentIndex?: number;
+  selection?: {
+    type?: string;
+    questionCount?: number;
+    domain?: string;
+  };
+}
+
+function shuffleArray<T>(arr: T[]): T[] {
   const copy = [...arr];
   for (let i = copy.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
+    [copy[i], copy[j]] = [copy[j] as T, copy[i] as T];
   }
   return copy;
 }
 
-function normalizeQuestions(rawQuestions = [], preserveOptionOrder = false) {
+function normalizeQuestions(rawQuestions: RawQuestion[] = [], preserveOptionOrder = false): Question[] {
   return rawQuestions.map((q, index) => {
     const isTF = q.question_type === "tf";
 
-    let options = [];
+    let options: string[] = [];
     if (isTF) {
       options = ["True", "False"];
     } else {
@@ -66,9 +119,9 @@ function normalizeQuestions(rawQuestions = [], preserveOptionOrder = false) {
   });
 }
 
-function calculateScore(questions, answers) {
+function calculateScore(questions: Question[], answers: Answers): Score {
   let correct = 0;
-  const byDomain = {};
+  const byDomain: Record<string, DomainScore> = {};
 
   questions.forEach((q) => {
     const userAnswer = answers[q.id];
@@ -76,15 +129,16 @@ function calculateScore(questions, answers) {
 
     if (isCorrect) correct += 1;
 
-    if (!byDomain[q.domain]) {
-      byDomain[q.domain] = {
+    const domain = q.domain || "";
+    if (!byDomain[domain]) {
+      byDomain[domain] = {
         total: 0,
         correct: 0,
       };
     }
 
-    byDomain[q.domain].total += 1;
-    if (isCorrect) byDomain[q.domain].correct += 1;
+    byDomain[domain].total += 1;
+    if (isCorrect) byDomain[domain].correct += 1;
   });
 
   return {
@@ -101,17 +155,17 @@ export default function PracticeTestApp() {
   const { user } = useAuth();
   const username = user?.email || "";
 
-  const [mode, setMode] = useState("practice");
-  const [selectionType, setSelectionType] = useState("random");
+  const [mode, setMode] = useState<"practice" | "test">("practice");
+  const [selectionType, setSelectionType] = useState<"random" | "domain">("random");
   const [questionCount, setQuestionCount] = useState(10);
-  const [selectedDomain, setSelectedDomain] = useState(DOMAINS[0].short);
+  const [selectedDomain, setSelectedDomain] = useState((DOMAINS[0] as Domain).short);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [questions, setQuestions] = useState([]);
-  const [answers, setAnswers] = useState({});
-  const [revealedPractice, setRevealedPractice] = useState({});
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [revealedPractice, setRevealedPractice] = useState<Record<string, boolean>>({});
   const [submittedTest, setSubmittedTest] = useState(false);
   const [practiceComplete, setPracticeComplete] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -119,13 +173,13 @@ export default function PracticeTestApp() {
   const [saveStatus, setSaveStatus] = useState("");
 
   const [checkingProgress, setCheckingProgress] = useState(true);
-  const [existingProgress, setExistingProgress] = useState(null);
+  const [existingProgress, setExistingProgress] = useState<SavedProgress | null>(null);
   const [progressActionLoading, setProgressActionLoading] = useState(false);
 
   const activeQuestion = questions[currentIndex];
 
   const domainMap = useMemo(() => {
-    const map = {};
+    const map: Record<string, string> = {};
     DOMAINS.forEach((d) => {
       map[d.short] = d.long;
     });
@@ -178,7 +232,7 @@ export default function PracticeTestApp() {
       } else {
         setExistingProgress(null);
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Unable to check saved progress");
       setExistingProgress(null);
     } finally {
@@ -220,9 +274,9 @@ export default function PracticeTestApp() {
       }
 
       const data = await response.json();
-      const fetchedQuestions = Array.isArray(data) ? data : data.questions || [];
+      const fetchedQuestions: RawQuestion[] = Array.isArray(data) ? data : data.questions || [];
       setQuestions(normalizeQuestions(fetchedQuestions, false));
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Unable to load questions");
     } finally {
       setLoading(false);
@@ -230,10 +284,10 @@ export default function PracticeTestApp() {
   }
 
   async function saveTestProgress(
-    updatedAnswers,
-    deliveredQuestions = questions,
-    overrideSubmittedTest = submittedTest,
-    overrideCurrentIndex = currentIndex
+    updatedAnswers: Answers,
+    deliveredQuestions: Question[] = questions,
+    overrideSubmittedTest: boolean = submittedTest,
+    overrideCurrentIndex: number = currentIndex
   ) {
     if (!username || !deliveredQuestions.length) return;
 
@@ -284,7 +338,7 @@ export default function PracticeTestApp() {
   function handleContinueSavedTest() {
     if (!existingProgress) return;
 
-    const savedMode = existingProgress.mode || "practice";
+    const savedMode = (existingProgress.mode as "practice" | "test") || "practice";
     const savedAnswers = existingProgress.answers || {};
     const savedQuestions = normalizeQuestions(
       existingProgress.deliveredQuestions || [],
@@ -297,9 +351,9 @@ export default function PracticeTestApp() {
       savedQuestions.every((q) => savedAnswers[q.id] !== undefined);
 
     setMode(savedMode);
-    setSelectionType(existingProgress.selection?.type || "random");
+    setSelectionType((existingProgress.selection?.type as "random" | "domain") || "random");
     setQuestionCount(existingProgress.selection?.questionCount || 10);
-    setSelectedDomain(existingProgress.selection?.domain || DOMAINS[0].short);
+    setSelectedDomain(existingProgress.selection?.domain || (DOMAINS[0] as Domain).short);
 
     setQuestions(savedQuestions);
     setAnswers(savedAnswers);
@@ -337,14 +391,14 @@ export default function PracticeTestApp() {
 
       setExistingProgress(null);
       handleRestart();
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Unable to delete saved progress");
     } finally {
       setProgressActionLoading(false);
     }
   }
 
-  function handleAnswer(questionId, selectedOption) {
+  function handleAnswer(questionId: string, selectedOption: string) {
     if (submittedTest || practiceComplete) return;
 
     const updatedAnswers = {
@@ -385,7 +439,7 @@ export default function PracticeTestApp() {
     setSaveStatus("");
   }
 
-  function getQuestionStatus(question) {
+  function getQuestionStatus(question: Question) {
     const userAnswer = answers[question.id];
     const isAnswered = userAnswer !== undefined;
     const isCorrect = userAnswer === question.correct_answer;
@@ -396,7 +450,7 @@ export default function PracticeTestApp() {
     };
   }
 
-  function getNavigatorClass(q, index) {
+  function getNavigatorClass(q: Question, index: number) {
     const status = getQuestionStatus(q);
     const isCurrent = index === currentIndex;
 
@@ -413,7 +467,8 @@ export default function PracticeTestApp() {
     return className;
   }
 
-  function getOptionClass(option) {
+  function getOptionClass(option: string) {
+    if (!activeQuestion) return "study-option-card";
     const selected = answers[activeQuestion.id] === option;
     const showFeedback =
       mode === "practice"
@@ -472,7 +527,7 @@ export default function PracticeTestApp() {
                 <strong>Selection:</strong>{" "}
                 {existingProgress.selection?.type === "domain"
                   ? `Domain - ${
-                      domainMap[existingProgress.selection?.domain] ||
+                      domainMap[existingProgress.selection?.domain || ""] ||
                       existingProgress.selection?.domain
                     }`
                   : `Random - ${existingProgress.selection?.questionCount || 0} questions`}
@@ -673,7 +728,7 @@ export default function PracticeTestApp() {
                       Question {currentIndex + 1} of {questions.length}
                     </h2>
                     <p className="study-domain-tag">
-                      {domainMap[activeQuestion.domain] || activeQuestion.domain}
+                      {domainMap[activeQuestion.domain || ""] || activeQuestion.domain}
                     </p>
                     <p className="study-question-type">
                       {activeQuestion.question_type === "tf"
@@ -835,7 +890,7 @@ export default function PracticeTestApp() {
                           </strong>
                         </p>
                         <p>
-                          <strong>Domain:</strong> {domainMap[q.domain] || q.domain}
+                          <strong>Domain:</strong> {domainMap[q.domain || ""] || q.domain}
                         </p>
                         <p>
                           <strong>Your Answer:</strong> {userAnswer || "No answer"}
@@ -870,4 +925,3 @@ export default function PracticeTestApp() {
 }
 
 export { shuffleArray, normalizeQuestions, calculateScore };
-

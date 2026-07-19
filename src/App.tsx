@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import LoadingScreen from './components/LoadingScreen';
@@ -13,6 +14,8 @@ import { useTerminalLog } from './hooks/useTerminalLog';
 import { useCommandHistory } from './hooks/useCommandHistory';
 import { useInterviewModule } from './modules/interview/useInterviewModule';
 import { useBeatlesModule } from './modules/beatles/useBeatlesModule';
+import type { Line } from './lib/id';
+import type { ModuleContract } from './modules/moduleContract';
 
 // Printed once on load, before the session check even resolves.
 const BANNER_LINES = [
@@ -33,7 +36,10 @@ const CORE_HELP_LINES = [
 
 const TIP_LINE = 'tip: use ↑ / ↓ to move through command history';
 
-function buildInitialLog(makeLine, modules) {
+function buildInitialLog(
+  makeLine: (kind: string, content: unknown) => Line,
+  modules: ModuleContract[]
+): Line[] {
   const lines = [...BANNER_LINES, ...CORE_HELP_LINES, ...modules.flatMap((m) => m.helpLines), '', TIP_LINE];
   return lines.map((l) => makeLine('help', l));
 }
@@ -48,16 +54,16 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const seededLog = useRef(false);
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   // ---- active modules ----
   // To add another module: call its hook here and add it to this array.
   // Everything else (help text, command dispatch, capture-mode routing,
   // the title-bar badge) picks it up automatically. See
-  // modules/moduleContract.js for the shape each hook must return.
+  // modules/moduleContract.ts for the shape each hook must return.
   const interviewModule = useInterviewModule({ appendLines, makeLine, busy, setBusy });
   const beatlesModule = useBeatlesModule({ appendLines, makeLine, busy, setBusy });
-  const modules = [interviewModule, beatlesModule];
+  const modules: ModuleContract[] = [interviewModule, beatlesModule];
 
   // seed the scrollback with banner + help text exactly once
   useEffect(() => {
@@ -86,7 +92,7 @@ export default function App() {
       const result = await response.json();
       appendLines([makeLine('ok', `[ok] server responded: ${result.message}`)]);
     } catch (err) {
-      appendLines([makeLine('error', `error: could not reach server (${err.message})`)]);
+      appendLines([makeLine('error', `error: could not reach server (${(err as Error).message})`)]);
     } finally {
       setBusy(false);
     }
@@ -100,7 +106,7 @@ export default function App() {
   // Order: built-in core commands first, then each active module gets a
   // chance to claim the command. First module to return true from
   // handleCommand wins; if none claim it, it's "command not found".
-  const handleCommand = (raw) => {
+  const handleCommand = (raw: string) => {
     const cmd = raw.trim();
     if (cmd === '') return;
 
@@ -132,7 +138,7 @@ export default function App() {
     appendLines([makeLine('error', `command not found: ${cmd}`)]);
   };
 
-  const onKeyDown = (e) => {
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (busy) {
       e.preventDefault();
       return;
@@ -169,7 +175,7 @@ export default function App() {
   const capturingModule = modules.find((m) => m.capturing);
 
   // Wraps a gated page: renders it if authed, otherwise bounces to login.
-  const requireAuth = (element) => (isAuthed ? element : <LoginScreen />);
+  const requireAuth = (element: React.ReactNode) => (isAuthed ? element : <LoginScreen />);
 
   // Interview tab needs the full terminal state/handlers; Study and Docs
   // are self-contained stubs for now and don't need any of this.

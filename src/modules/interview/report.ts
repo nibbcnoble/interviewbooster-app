@@ -2,14 +2,22 @@ import { COLORS } from '../../theme/colors';
 import { gradeStyleFor } from './grading';
 import { getCorrectAnswer } from './questionPool';
 
-export const buildMarkdownReport = (results) => {
+export interface InterviewResult {
+  question: string;
+  answer: string;
+  grade?: number | null;
+  justification?: string | null | undefined;
+  correctAnswer?: string | null | undefined;
+}
+
+export const buildMarkdownReport = (results: InterviewResult[]): string => {
   const now = new Date();
   const gradesGiven = results.filter((r) => typeof r.grade === 'number');
   const avg = gradesGiven.length
-    ? gradesGiven.reduce((sum, r) => sum + r.grade, 0) / gradesGiven.length
+    ? gradesGiven.reduce((sum, r) => sum + (r.grade as number), 0) / gradesGiven.length
     : null;
 
-  const lines = [];
+  const lines: string[] = [];
   lines.push('# Interview Grading Report');
   lines.push('');
   lines.push(`- **Generated:** ${now.toLocaleString()}`);

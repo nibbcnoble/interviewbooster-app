@@ -1,12 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeLine } from '../lib/id';
+import { makeLine, Line } from '../lib/id';
+
+export interface UseTerminalLogResult {
+  log: Line[];
+  appendLines: (lines: Line[]) => void;
+  makeLine: typeof makeLine;
+  clear: () => void;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+}
 
 // Owns the scrollback buffer and keeps it pinned to the bottom as lines
 // arrive. Every module gets `appendLines`/`makeLine` from here so the core
 // shell and all modules write into the same log.
-export function useTerminalLog(initialLines = []) {
-  const [log, setLog] = useState(() => initialLines);
-  const scrollRef = useRef(null);
+export function useTerminalLog(initialLines: Line[] = []): UseTerminalLogResult {
+  const [log, setLog] = useState<Line[]>(() => initialLines);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -14,7 +22,7 @@ export function useTerminalLog(initialLines = []) {
     }
   }, [log]);
 
-  const appendLines = (lines) => {
+  const appendLines = (lines: Line[]) => {
     setLog((prev) => [...prev, ...lines]);
   };
 

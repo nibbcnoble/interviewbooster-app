@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import type { ModuleContract } from '../moduleContract';
+import type { Line } from '../../lib/id';
 
-const HELP_LINES = [
+const HELP_LINES: string[] = [
   'interview john                  start an interview with John',
   'interview paul                  start an interview with Paul',
   'interview george                start an interview with George',
@@ -8,26 +10,25 @@ const HELP_LINES = [
   'goodbye                         end the current Beatle interview',
 ];
 
-const PERSONAS = {
+type BeatleName = 'john' | 'paul' | 'george' | 'ringo';
+
+const PERSONAS: Record<BeatleName, { greeting: string }> = {
   john: {
     greeting:
       "John here. Ask what you like. I'll give you the straight of it, crooked though it may be.",
   },
   paul: {
-    greeting:
-      "Paul here. Right then, let’s get on with it — ask away.",
+    greeting: "Paul here. Right then, let’s get on with it — ask away.",
   },
   george: {
-    greeting:
-      "George here. Go on then. Ask what you want, and we’ll see what’s worth saying.",
+    greeting: "George here. Go on then. Ask what you want, and we’ll see what’s worth saying.",
   },
   ringo: {
-    greeting:
-      "Ringo here, my friend. Lovely to chat — fire away.",
+    greeting: "Ringo here, my friend. Lovely to chat — fire away.",
   },
 };
 
-async function askBeatle(beatle, question) {
+async function askBeatle(beatle: BeatleName, question: string): Promise<{ answer?: string }> {
   const response = await fetch('/api/beatles/interview', {
     method: 'POST',
     headers: {
@@ -45,13 +46,25 @@ async function askBeatle(beatle, question) {
   return data;
 }
 
-export function useBeatlesModule({ appendLines, makeLine, busy, setBusy }) {
-  const [activeBeatle, setActiveBeatle] = useState(null);
+export interface UseBeatlesModuleOptions {
+  appendLines: (lines: Line[]) => void;
+  makeLine: (kind: string, content: unknown) => Line;
+  busy: boolean;
+  setBusy: (busy: boolean) => void;
+}
 
-  const startInterview = (beatle) => {
+export function useBeatlesModule({
+  appendLines,
+  makeLine,
+  busy,
+  setBusy,
+}: UseBeatlesModuleOptions): ModuleContract {
+  const [activeBeatle, setActiveBeatle] = useState<BeatleName | null>(null);
+
+  const startInterview = (beatle: string) => {
     if (busy) return;
 
-    if (!PERSONAS[beatle]) {
+    if (!PERSONAS[beatle as BeatleName]) {
       appendLines([
         makeLine('error', 'error: invalid beatle. use john, paul, george, or ringo.'),
       ]);
@@ -65,12 +78,13 @@ export function useBeatlesModule({ appendLines, makeLine, busy, setBusy }) {
       return;
     }
 
-    setActiveBeatle(beatle);
+    const typedBeatle = beatle as BeatleName;
+    setActiveBeatle(typedBeatle);
 
     appendLines([
       makeLine('rule', '┌─ beatles interview ' + '─'.repeat(15)),
-      makeLine('help', PERSONAS[beatle].greeting),
-      makeLine('help', `you are now interviewing ${beatle}. type a question and press enter.`),
+      makeLine('help', PERSONAS[typedBeatle].greeting),
+      makeLine('help', `you are now interviewing ${typedBeatle}. type a question and press enter.`),
       makeLine('help', 'say "goodbye" at any time to end the interview.'),
       makeLine('rule', '└' + '─'.repeat(38)),
     ]);
@@ -79,42 +93,33 @@ export function useBeatlesModule({ appendLines, makeLine, busy, setBusy }) {
   const stopInterview = () => {
     if (!activeBeatle) return;
 
-    appendLines([
-      makeLine('ok', `[ok] ended interview with ${activeBeatle}`),
-    ]);
+    appendLines([makeLine('ok', `[ok] ended interview with ${activeBeatle}`)]);
 
     setActiveBeatle(null);
   };
 
-  const submitQuestion = async (text) => {
+  const submitQuestion = async (text: string) => {
     if (!activeBeatle) return;
 
-    appendLines([
-      makeLine('input', text),
-      makeLine('output', `asking ${activeBeatle}...`),
-    ]);
+    appendLines([makeLine('input', text), makeLine('output', `asking ${activeBeatle}...`)]);
 
     setBusy(true);
 
     try {
       const result = await askBeatle(activeBeatle, text);
 
-      appendLines([
-        makeLine('ok', `${activeBeatle}: ${result.answer || '(no answer returned)'}`),
-      ]);
+      appendLines([makeLine('ok', `${activeBeatle}: ${result.answer || '(no answer returned)'}`)]);
     } catch (err) {
-      appendLines([
-        makeLine('error', `error: ${err.message}`),
-      ]);
+      appendLines([makeLine('error', `error: ${(err as Error).message}`)]);
     } finally {
       setBusy(false);
     }
   };
 
-  const handleCommand = (cmd) => {
+  const handleCommand = (cmd: string): boolean => {
     const match = cmd.match(/^interview\s+(john|paul|george|ringo)\s*$/i);
     if (match) {
-      startInterview(match[1].toLowerCase());
+      startInterview((match[1] as string).toLowerCase());
       return true;
     }
 
@@ -126,7 +131,7 @@ export function useBeatlesModule({ appendLines, makeLine, busy, setBusy }) {
     return false;
   };
 
-  const handleCapturedInput = (trimmed) => {
+  const handleCapturedInput = (trimmed: string) => {
     if (/^goodbye\s*$/i.test(trimmed)) {
       appendLines([makeLine('input', trimmed)]);
       stopInterview();
