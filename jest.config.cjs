@@ -8,7 +8,8 @@
 module.exports = {
   testEnvironment: 'jsdom',
   roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.test.{js,jsx}'],
+  testMatch: ['**/__tests__/**/*.test.{js,jsx,ts,tsx}'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
 
   // Stub out non-JS assets in case a tested module ever imports them.
   moduleNameMapper: {
@@ -19,7 +20,7 @@ module.exports = {
   // Only measure coverage on the surface these unit tests own; the rest is
   // Playwright's responsibility.
   collectCoverageFrom: [
-    'src/lib/**/*.js',
+    'src/lib/**/*.{js,ts}',
     'src/theme/**/*.js',
     'src/hooks/useCommandHistory.js',
     'src/hooks/useTerminalLog.js',
@@ -28,6 +29,7 @@ module.exports = {
     'src/modules/interview/report.js',
     'src/modules/interview/questionPool.js',
   ],
+
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'text-summary', 'lcov'],
 

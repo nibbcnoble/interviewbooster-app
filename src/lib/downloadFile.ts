@@ -1,6 +1,10 @@
 // Generic browser-download helper. Any module can use this to hand the
 // user a file — not tied to markdown or to the interview module.
-export const downloadFile = (filename, content, mimeType = 'text/plain;charset=utf-8') => {
+export const downloadFile = (
+  filename: string,
+  content: BlobPart,
+  mimeType: string = 'text/plain;charset=utf-8'
+): void => {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

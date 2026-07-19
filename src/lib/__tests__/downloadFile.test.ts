@@ -1,12 +1,11 @@
 import { downloadFile } from '../downloadFile';
 
 describe('downloadFile', () => {
-  let createObjectURL;
-  let revokeObjectURL;
-  let anchor;
-  let createElementSpy;
-  let appendChildSpy;
-  let removeChildSpy;
+  let createObjectURL: jest.Mock;
+  let revokeObjectURL: jest.Mock;
+  let anchor: { href: string; download: string; click: jest.Mock };
+  let appendChildSpy: jest.SpyInstance;
+  let removeChildSpy: jest.SpyInstance;
 
   beforeEach(() => {
     // jsdom does not implement the object-URL APIs, so provide mocks.
@@ -16,18 +15,18 @@ describe('downloadFile', () => {
     URL.revokeObjectURL = revokeObjectURL;
 
     anchor = { href: '', download: '', click: jest.fn() };
-    createElementSpy = jest
-      .spyOn(document, 'createElement')
-      .mockImplementation((tag) => {
-        if (tag === 'a') return anchor;
-        return document.createElementNS('http://www.w3.org/1999/xhtml', tag);
-      });
+    jest.spyOn(document, 'createElement').mockImplementation(((
+      tag: string
+    ) => {
+      if (tag === 'a') return anchor;
+      return document.createElementNS('http://www.w3.org/1999/xhtml', tag);
+    }) as typeof document.createElement);
     appendChildSpy = jest
       .spyOn(document.body, 'appendChild')
-      .mockImplementation((node) => node);
+      .mockImplementation(((node: Node) => node) as typeof document.body.appendChild);
     removeChildSpy = jest
       .spyOn(document.body, 'removeChild')
-      .mockImplementation((node) => node);
+      .mockImplementation(((node: Node) => node) as typeof document.body.removeChild);
   });
 
   afterEach(() => {

@@ -1,31 +1,42 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
-import { Plus, Trash2, Send, ChevronDown } from "lucide-react";
-import { createChart, LineSeries } from "lightweight-charts";
+import { Plus, Trash2, Send } from "lucide-react";
+import { createChart, LineSeries, type IChartApi, type ISeriesApi, type LineData } from "lightweight-charts";
 import { useAuth } from "../../hooks/useAuth";
 import "./StockDashboard.css";
 
 const TIME_SERIES_OPTIONS = ["1D", "5D", "1M", "6M", "1Y", "5Y", "MAX"];
 
-function makeStockItem(symbol) {
+interface StockItem {
+  symbol: string;
+  name: string;
+}
+
+interface ChatMessage {
+  timestamp: string;
+  category: string;
+  text: string;
+}
+
+function makeStockItem(symbol: string): StockItem {
   return {
     symbol,
     name: `${symbol} Corp.`,
   };
 }
 
-function formatPrice(value) {
+function formatPrice(value: number) {
   return Number(value || 0).toFixed(2);
 }
 
 export default function StockDashboard() {
   const { authStatus } = useAuth();
 
-  const [stocks, setStocks] = useState([]);
-  const [selectedStock, setSelectedStock] = useState(null);
+  const [stocks, setStocks] = useState<StockItem[]>([]);
+  const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
   const [timeSeries, setTimeSeries] = useState("1M");
-  const [chartData, setChartData] = useState([]);
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chartData, setChartData] = useState<LineData[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [newStock, setNewStock] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [price, setPrice] = useState(0);
@@ -35,9 +46,9 @@ export default function StockDashboard() {
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const chartContainerRef = useRef(null);
-  const chartInstanceRef = useRef(null);
-  const lineSeriesRef = useRef(null);
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
+  const chartInstanceRef = useRef<IChartApi | null>(null);
+  const lineSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
 
   const selectedLabel = useMemo(() => {
     return selectedStock
@@ -131,7 +142,7 @@ export default function StockDashboard() {
       setErrorMessage("");
 
       const response = await axios.get("/api/stocks");
-      const symbols = Array.isArray(response.data?.symbols) ? response.data.symbols : [];
+      const symbols: string[] = Array.isArray(response.data?.symbols) ? response.data.symbols : [];
       const items = symbols.map(makeStockItem);
 
       setStocks(items);
@@ -146,7 +157,7 @@ export default function StockDashboard() {
       if (!items.length) {
         clearSelectedStockData();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Failed to load stocks:", err?.response?.data?.error || err?.message);
       setErrorMessage(err?.response?.data?.error || "Failed to load stocks.");
       setStocks([]);
@@ -155,7 +166,7 @@ export default function StockDashboard() {
     }
   };
 
-  const loadStockData = async (symbol, rangeOverride) => {
+  const loadStockData = async (symbol: string, rangeOverride?: string) => {
     if (authStatus !== "authed" || !symbol) {
       clearSelectedStockData();
       return;
@@ -190,7 +201,7 @@ export default function StockDashboard() {
       setPrice(market?.currentPrice ?? 0);
       setChange(market?.priceChange ?? 0);
       setChangePct(market?.priceChangePercent ?? 0);
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Failed to load stock data:", err?.response?.data?.error || err?.message);
       setErrorMessage(err?.response?.data?.error || "Failed to load stock data.");
       clearSelectedStockData();
@@ -207,6 +218,7 @@ export default function StockDashboard() {
       setSelectedStock(null);
       clearSelectedStockData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authStatus]);
 
   useEffect(() => {
@@ -215,9 +227,10 @@ export default function StockDashboard() {
     } else {
       clearSelectedStockData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStock, authStatus]);
 
-  const handleTimeSeriesChange = async (range) => {
+  const handleTimeSeriesChange = async (range: string) => {
     if (!selectedStock?.symbol || isLoadingChart || range === timeSeries) return;
 
     try {
@@ -228,7 +241,7 @@ export default function StockDashboard() {
       });
 
       await loadStockData(selectedStock.symbol, range);
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Time series update failed:", err?.response?.data?.error || err?.message);
       setErrorMessage(err?.response?.data?.error || "Failed to update time series.");
     }
@@ -242,26 +255,26 @@ export default function StockDashboard() {
       setErrorMessage("");
 
       const response = await axios.post("/api/stocks/add", { symbol });
-      const symbols = Array.isArray(response.data?.symbols) ? response.data.symbols : [];
+      const symbols: string[] = Array.isArray(response.data?.symbols) ? response.data.symbols : [];
       const items = symbols.map(makeStockItem);
 
       setStocks(items);
       setSelectedStock(items.find((item) => item.symbol === symbol) || items[0] || null);
       setNewStock("");
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Add stock failed:", err?.response?.data?.error || err?.message);
       setErrorMessage(err?.response?.data?.error || "Failed to add stock.");
     }
   };
 
-  const handleRemoveStock = async (symbol) => {
+  const handleRemoveStock = async (symbol: string) => {
     if (authStatus !== "authed") return;
 
     try {
       setErrorMessage("");
 
       const response = await axios.delete(`/api/stocks/remove/${symbol}`);
-      const symbols = Array.isArray(response.data?.symbols) ? response.data.symbols : [];
+      const symbols: string[] = Array.isArray(response.data?.symbols) ? response.data.symbols : [];
       const items = symbols.map(makeStockItem);
 
       setStocks(items);
@@ -273,7 +286,7 @@ export default function StockDashboard() {
       if (!items.length) {
         clearSelectedStockData();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Remove stock failed:", err?.response?.data?.error || err?.message);
       setErrorMessage(err?.response?.data?.error || "Failed to remove stock.");
     }
@@ -298,7 +311,7 @@ export default function StockDashboard() {
       }
 
       setMessageInput("");
-    } catch (err) {
+    } catch (err: any) {
       console.warn("Chat failed:", err?.response?.data?.error || err?.message);
       setErrorMessage(err?.response?.data?.error || "Failed to send message.");
     } finally {

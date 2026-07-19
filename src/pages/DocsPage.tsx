@@ -1,6 +1,25 @@
 import { useState } from "react";
 
-const REPOS = [
+interface Repo {
+  label: string;
+  name: string;
+  desc: string;
+  url: string;
+}
+
+interface Resource {
+  label: string;
+  name: string;
+  desc: string;
+}
+
+interface FaqItem {
+  slug: string;
+  q: string;
+  a: string[];
+}
+
+const REPOS: Repo[] = [
   {
     label: "frontend",
     name: "interviewbooster-app",
@@ -27,7 +46,7 @@ const REPOS = [
   },
 ];
 
-const RESOURCES = [
+const RESOURCES: Resource[] = [
   {
     label: "database",
     name: "MongoDB",
@@ -40,7 +59,7 @@ const RESOURCES = [
   },
 ];
 
-const FAQ = [
+const FAQ: FaqItem[] = [
   {
     slug: "why-does-this-exist",
     q: "why does this exist",
@@ -77,7 +96,7 @@ const FAQ = [
 ];
 
 export default function DocsPage() {
-  const [activeRepo, setActiveRepo] = useState(null);
+  const [activeRepo, setActiveRepo] = useState<string | null>(null);
 
   return (
     <div className="white-doc ib-docs">
@@ -466,7 +485,7 @@ export default function DocsPage() {
   );
 }
 
-function FaqRow({ item }) {
+function FaqRow({ item }: { item: FaqItem }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="ib-docs__prompt-row">

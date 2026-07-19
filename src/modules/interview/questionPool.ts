@@ -1,7 +1,7 @@
 // Pool of general devops / IT knowledge questions — 5 are drawn at random
 // per interview run. QUESTION_POOL and ANSWER_POOL are index-aligned.
 
-export const QUESTION_POOL = [
+export const QUESTION_POOL: string[] = [
   'What is DNS and how does it work?',
     'Explain the difference between TCP and UDP.',
     'What is the purpose of a VNet (or VPC) in cloud computing?',
@@ -67,7 +67,7 @@ export const QUESTION_POOL = [
 // ANSWER_POOL is index-aligned with QUESTION_POOL — ANSWER_POOL[i] answers QUESTION_POOL[i].
 // Answers are written for a student learning the concept for the first time (2-5 sentences each).
 
-export const ANSWER_POOL = [
+export const ANSWER_POOL: string[] = [
   // What is DNS and how does it work?
   "DNS (Domain Name System) translates human-readable domain names like example.com into IP addresses that computers use to route traffic. When you type a URL, your device queries a DNS resolver, which checks its cache or asks a chain of servers (root, TLD, then authoritative) until it finds the matching IP. This lookup happens in milliseconds and is what lets you use memorable names instead of raw numeric addresses.",
 
@@ -252,7 +252,7 @@ export const ANSWER_POOL = [
 // looks up the model answer for a given question by matching it against
 // QUESTION_POOL (index-aligned with ANSWER_POOL). returns undefined if the
 // question text doesn't come from the pool (e.g. a freeform "-q" question).
-export const getCorrectAnswer = (questionText) => {
+export const getCorrectAnswer = (questionText: string): string | undefined => {
   const idx = QUESTION_POOL.indexOf(questionText);
   return idx === -1 ? undefined : ANSWER_POOL[idx];
 };

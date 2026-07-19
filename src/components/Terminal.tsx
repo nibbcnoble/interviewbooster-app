@@ -1,5 +1,22 @@
+import type { KeyboardEvent, RefObject } from 'react';
 import { COLORS, TERMINAL_FONT_STACK } from '../theme/colors';
 import TerminalLine from './TerminalLine';
+import type { Line } from '../lib/id';
+
+export interface TerminalProps {
+  log: Line[];
+  scrollRef: RefObject<HTMLDivElement | null>;
+  input: string;
+  setInput: (value: string) => void;
+  busy: boolean;
+  onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
+  inputRef: RefObject<HTMLInputElement | null>;
+  focusInput: () => void;
+  badge?: string | null;
+  promptLabel?: string;
+  placeholder?: string;
+  titleText?: string;
+}
 
 // The live shell: title bar (with an optional module status badge), the
 // scrollback, and the input row. This component doesn't know anything
@@ -19,7 +36,7 @@ export default function Terminal({
   promptLabel = '$',
   placeholder = 'type a command… (try "help")',
   titleText = 'interview-booster — bash —',
-}) {
+}: TerminalProps) {
   return (
     <div
       style={{
@@ -127,7 +144,7 @@ export default function Terminal({
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
-              spellCheck="false"
+              spellCheck={false}
               placeholder={busy ? 'working…' : placeholder}
               style={{
                 width: '100%',

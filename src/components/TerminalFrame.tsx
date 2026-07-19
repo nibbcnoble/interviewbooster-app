@@ -1,9 +1,20 @@
+import type { ReactNode } from 'react';
 import { COLORS, TERMINAL_FONT_STACK } from '../theme/colors';
+
+export interface TerminalFrameProps {
+  children: ReactNode;
+  statusLabel?: string;
+  title?: string;
+}
 
 // Shared chrome (centered card, title bar, blinking-cursor keyframes) used
 // by the auth screens. The live Terminal component has its own frame
 // because it needs a taller flex-column layout for scrollback + input.
-export default function TerminalFrame({ children, statusLabel, title = 'interview-grader — auth —' }) {
+export default function TerminalFrame({
+  children,
+  statusLabel,
+  title = 'interview-grader — auth —',
+}: TerminalFrameProps) {
   return (
     <div
       style={{

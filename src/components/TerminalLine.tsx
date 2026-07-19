@@ -1,12 +1,17 @@
 import { COLORS } from '../theme/colors';
+import type { Line } from '../lib/id';
+
+export interface TerminalLineProps {
+  line: Line;
+}
 
 // Renders one entry from the scrollback log. `line.kind` is the contract
 // every module writes against — add a new `case` here when a module wants
 // its own visual treatment (e.g. a future module's own result card).
-export default function TerminalLine({ line }) {
+export default function TerminalLine({ line }: TerminalLineProps) {
   switch (line.kind) {
     case 'help': {
-      const text = line.content || '';
+      const text = (line.content as string) || '';
       // Command lines are authored as "command<lots of spaces>description"
       // for column alignment on wide screens — and the command itself can
       // be multiple words (e.g. "interview john"), so split on the run of
@@ -34,89 +39,105 @@ export default function TerminalLine({ line }) {
     case 'input':
       return (
         <div style={{ color: COLORS.text }}>
-          <span style={{ color: COLORS.amber }}>$</span> {line.content}
+          <span style={{ color: COLORS.amber }}>$</span> {line.content as string}
         </div>
       );
-    case 'question':
+    case 'question': {
+      const content = line.content as { index: number; total: number; text: string };
       return (
         <div style={{ color: COLORS.amber, margin: '0.3rem 0', whiteSpace: 'pre-wrap' }}>
-          Q{line.content.index}/{line.content.total}: {line.content.text}
+          Q{content.index}/{content.total}: {content.text}
         </div>
       );
-    case 'answer-input':
+    }
+    case 'answer-input': {
+      const content = line.content as { index: number; total: number; text: string };
       return (
         <div style={{ color: COLORS.text }}>
           <span style={{ color: COLORS.amber }}>
-            [{line.content.index}/{line.content.total}]$
+            [{content.index}/{content.total}]$
           </span>{' '}
-          {line.content.text}
+          {content.text}
         </div>
       );
+    }
     case 'summary-q':
       return (
         <div style={{ color: COLORS.amber, whiteSpace: 'pre-wrap' }}>
-          Q: {line.content}
+          Q: {line.content as string}
         </div>
       );
     case 'summary-a':
       return (
         <div style={{ color: COLORS.text, whiteSpace: 'pre-wrap' }}>
-          A: {line.content}
+          A: {line.content as string}
         </div>
       );
     case 'ok':
-      return <div style={{ color: COLORS.text }}>{line.content}</div>;
+      return <div style={{ color: COLORS.text }}>{line.content as string}</div>;
     case 'error':
-      return <div style={{ color: COLORS.error }}>{line.content}</div>;
+      return <div style={{ color: COLORS.error }}>{line.content as string}</div>;
     case 'output':
       return (
-        <div style={{ color: COLORS.textDim, fontStyle: 'italic' }}>{line.content}</div>
+        <div style={{ color: COLORS.textDim, fontStyle: 'italic' }}>{line.content as string}</div>
       );
     case 'rule':
       return (
         <div style={{ color: COLORS.textMuted, whiteSpace: 'pre' }}>
-          {line.content || '\u00A0'}
+          {(line.content as string) || '\u00A0'}
         </div>
       );
-    case 'result-grade':
+    case 'result-grade': {
+      const content = line.content as {
+        style: { color: string; label: string; letter: string };
+        grade: number | string;
+      };
       return (
         <div style={{ margin: '0.2rem 0' }}>
-          <span style={{ color: line.content.style.color, fontWeight: 700, fontSize: '1.05em' }}>
-            [{line.content.style.label}]
+          <span style={{ color: content.style.color, fontWeight: 700, fontSize: '1.05em' }}>
+            [{content.style.label}]
           </span>{' '}
-          <span style={{ color: line.content.style.color, fontWeight: 700 }}>
-            grade: {line.content.grade}/5 ({line.content.style.letter})
+          <span style={{ color: content.style.color, fontWeight: 700 }}>
+            grade: {content.grade}/5 ({content.style.letter})
           </span>
         </div>
       );
-    case 'overall-grade':
+    }
+    case 'overall-grade': {
+      const content = line.content as {
+        style: { color: string; letter: string };
+        avg: number | null;
+        graded: number;
+        count: number;
+      };
       return (
         <div style={{ margin: '0.5rem 0' }}>
-          <span style={{ color: line.content.style.color, fontWeight: 700, fontSize: '1.1em' }}>
-            overall: {line.content.avg !== null ? line.content.avg.toFixed(1) : 'N/A'}/5 (
-            {line.content.style.letter})
+          <span style={{ color: content.style.color, fontWeight: 700, fontSize: '1.1em' }}>
+            overall: {content.avg !== null ? content.avg.toFixed(1) : 'N/A'}/5 (
+            {content.style.letter})
           </span>{' '}
           <span style={{ color: COLORS.textMuted }}>
-            — {line.content.graded}/{line.content.count} questions graded
+            — {content.graded}/{content.count} questions graded
           </span>
         </div>
       );
+    }
     case 'result-just':
       return (
         <div style={{ color: COLORS.text, whiteSpace: 'pre-wrap', margin: '0.2rem 0 0.6rem 0' }}>
-          {line.content}
+          {line.content as string}
         </div>
       );
     case 'result-correct':
       return (
         <div style={{ color: COLORS.powderBlue, whiteSpace: 'pre-wrap', margin: '0.2rem 0 0.6rem 0' }}>
-          correct answer: {line.content}
+          correct answer: {line.content as string}
         </div>
       );
     case 'result-raw':
       return (
         <div style={{ color: COLORS.textMuted, whiteSpace: 'pre-wrap', fontSize: '0.85em' }}>
-          raw: {line.content}
+          raw: {line.content as string}
         </div>
       );
     default:
