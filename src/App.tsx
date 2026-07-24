@@ -9,6 +9,7 @@ import InterviewPage from './pages/InterviewPage';
 import StudyPage from './pages/StudyPage';
 import StockPage from './pages/StocksPage';
 import DocsPage from './pages/DocsPage';
+import AboutPage from './pages/AboutPage';
 import { useAuth } from './hooks/useAuth';
 import { useTerminalLog } from './hooks/useTerminalLog';
 import { useCommandHistory } from './hooks/useCommandHistory';
@@ -202,6 +203,7 @@ export default function App() {
         {/* public */}
         <Route path="/" element={<DocsPage />} />
         <Route path="/docs" element={<DocsPage />} />
+        <Route path="/about" element={<AboutPage />} />
 
         {/* gated */}
         <Route path="/interview" element={requireAuth(interviewElement)} />
