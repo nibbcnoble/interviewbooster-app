@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
-import { Plus, Trash2, Send } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { createChart, LineSeries, type IChartApi, type ISeriesApi, type LineData } from "lightweight-charts";
 import { useAuth } from "../../hooks/useAuth";
 import "./StockDashboard.css";
@@ -10,12 +10,6 @@ const TIME_SERIES_OPTIONS = ["1D", "5D", "1M", "6M", "1Y", "5Y", "MAX"];
 interface StockItem {
   symbol: string;
   name: string;
-}
-
-interface ChatMessage {
-  timestamp: string;
-  category: string;
-  text: string;
 }
 
 function makeStockItem(symbol: string): StockItem {
@@ -36,14 +30,11 @@ export default function StockDashboard() {
   const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
   const [timeSeries, setTimeSeries] = useState("1M");
   const [chartData, setChartData] = useState<LineData[]>([]);
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [newStock, setNewStock] = useState("");
-  const [messageInput, setMessageInput] = useState("");
   const [price, setPrice] = useState(0);
   const [change, setChange] = useState(0);
   const [changePct, setChangePct] = useState(0);
   const [isLoadingChart, setIsLoadingChart] = useState(false);
-  const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
@@ -123,7 +114,6 @@ export default function StockDashboard() {
 
   const clearSelectedStockData = () => {
     setChartData([]);
-    setChatHistory([]);
     setPrice(0);
     setChange(0);
     setChangePct(0);
@@ -191,7 +181,6 @@ export default function StockDashboard() {
       }
 
       setTimeSeries(stock.timeSeries || rangeOverride || "1M");
-      setChatHistory(Array.isArray(stock.chatHistory) ? stock.chatHistory : []);
 
       if (market?.range) {
         setTimeSeries(market.range);
@@ -292,33 +281,6 @@ export default function StockDashboard() {
     }
   };
 
-  const handleSendMessage = async () => {
-    const text = messageInput.trim();
-    if (!text || !selectedStock?.symbol || authStatus !== "authed" || isSendingMessage) return;
-
-    try {
-      setIsSendingMessage(true);
-      setErrorMessage("");
-
-      const response = await axios.post(
-        `/api/stocks/${selectedStock.symbol}/chat/messages`,
-        { text }
-      );
-
-      const stock = response.data?.stock;
-      if (stock?.chatHistory) {
-        setChatHistory(stock.chatHistory);
-      }
-
-      setMessageInput("");
-    } catch (err: any) {
-      console.warn("Chat failed:", err?.response?.data?.error || err?.message);
-      setErrorMessage(err?.response?.data?.error || "Failed to send message.");
-    } finally {
-      setIsSendingMessage(false);
-    }
-  };
-
   return (
     <div className="sd-root">
       <aside className="sd-sidebar">
@@ -416,47 +378,7 @@ export default function StockDashboard() {
           </div>
         </section>
 
-        <section className="sd-chat-panel">
-          <div className="sd-chat-header">
-            <div>
-              <div className="sd-kicker">AI TERMINAL</div>
-              <h2>Answers & Insights</h2>
-            </div>
-          </div>
-
-          {errorMessage ? <div className="sd-error-banner">{errorMessage}</div> : null}
-
-          <div className="sd-chat-history">
-            {chatHistory.map((msg, idx) => (
-              <div key={`${msg.timestamp}-${idx}`} className={`sd-chat-msg ${msg.category}`}>
-                <span className="sd-chat-badge">{msg.category}</span>
-                <span className="sd-chat-text">{msg.text}</span>
-                <span className="sd-chat-time">
-                  {new Date(msg.timestamp).toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="sd-chat-input">
-            <input
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              placeholder="Ask about the stock..."
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSendMessage();
-              }}
-              disabled={!selectedStock || isSendingMessage}
-            />
-            <button
-              onClick={handleSendMessage}
-              aria-label="Send message"
-              disabled={!selectedStock || isSendingMessage}
-            >
-              <Send size={16} />
-            </button>
-          </div>
-        </section>
+        {errorMessage ? <div className="sd-error-banner">{errorMessage}</div> : null}
       </main>
     </div>
   );

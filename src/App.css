@@ -25,8 +25,39 @@
 .tab-bar-tabs {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 6px;
 }
+
+.tab-bar-tab-slot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-group-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 4px 6px 4px 0;
+  background: var(--tab-border);
+}
+
+.tab-project {
+  position: relative;
+}
+
+.tab-project::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--tab-orange-border);
+}
+
 
 .tab-bar-actions {
   position: relative;
@@ -93,13 +124,14 @@
   position: absolute;
   top: calc(100% + 6px);
   min-width: 180px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: rgb(27, 29, 27);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 6px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
   overflow: hidden;
   z-index: 20;
 }
+
 
 .dropdown-menu-left {
   left: 0;
@@ -112,8 +144,8 @@
 .dropdown-menu-label {
   padding: 10px 14px;
   font-size: 13px;
-  color: var(--text);
-  border-bottom: 1px solid var(--border);
+  color: #e4e4e4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
   word-break: break-word;
 }
 
@@ -123,7 +155,7 @@
   padding: 10px 14px;
   font-size: 14px;
   font-family: inherit;
-  color: var(--text-h);
+  color: #e4e4e4;
   background: transparent;
   border: none;
   text-align: left;
@@ -137,13 +169,24 @@
 }
 
 .dropdown-item:hover {
-  background: var(--social-bg);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .dropdown-item-active {
   color: #ff8a3d;
   font-weight: 500;
 }
+
+.dropdown-menu-group {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tab-orange, #ff8a3d);
+  padding: 8px 14px 4px;
+  border-bottom: none;
+  background: rgba(255, 138, 61, 0.06);
+}
+
 
 @media (max-width: 640px) {
   .tab-bar-tabs {

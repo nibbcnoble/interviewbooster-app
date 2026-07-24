@@ -318,7 +318,7 @@ export function useInterviewModule({
 
   return {
     id: 'interview',
-    helpLines: INTERVIEW_HELP_LINES,
+    helpLines: [], //INTERVIEW_HELP_LINES,
     capturing: interview !== null,
     statusBadge: interview ? `interview ${interview.idx + 1}/${interview.questions.length}` : null,
     promptLabel: interview ? `[${interview.idx + 1}/${interview.questions.length}]$` : null,

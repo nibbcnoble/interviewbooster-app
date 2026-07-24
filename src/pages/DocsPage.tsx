@@ -212,6 +212,7 @@ export default function DocsPage() {
           margin: 0 0 14px;
           color: var(--ink);
           max-width: 68ch;
+          text-align: justify;
         }
 
         .ib-docs__p:last-child { margin-bottom: 0; }
@@ -283,6 +284,7 @@ export default function DocsPage() {
           color: var(--ink-soft);
           margin: 0;
           max-width: 60ch;
+          text-align: justify;
         }
 
         /* FAQ, styled as terminal prompts */
@@ -333,6 +335,7 @@ export default function DocsPage() {
           font-size: 15px;
           margin: 0 0 10px;
           max-width: 62ch;
+          text-align: justify;
         }
 
         .ib-docs__prompt-answer p:last-child { margin-bottom: 0; }
@@ -362,6 +365,7 @@ export default function DocsPage() {
           font-size: 14.5px;
           color: var(--ink-soft);
           margin: 0;
+          text-align: justify;
         }
 
         @media (max-width: 640px) {
@@ -387,14 +391,14 @@ export default function DocsPage() {
       <header className="ib-docs__header">
         <p className="ib-docs__eyebrow">// docs</p>
         <h1 className="ib-docs__title">Portfolio of Jeffrey Charles Noble</h1>
-        <p className="ib-docs__sub">
+        <p className="ib-docs__sub" style={{ textAlign: "justify" }}>
           Thanks for coming by! This application is a landing page and access point for a set of web
           applications — most of them portfolio pieces, built to demonstrate
           real working knowledge rather than just describe it.
         </p>
-        <p className="ib-docs__sub activework">
+        <p className="ib-docs__sub activework" style={{ textAlign: "justify" }}>
           Active work: I'm studying for the AZ-104: Microsoft Azure Administrator Associate certification.  
-          I'm also brushing up on some concepts in Labex and filling gaps in my knowledge.  Beyond that, I'm also 
+          I'm also brushing up on some concepts on Labex.io and filling gaps in my knowledge.  Beyond that, I'm also 
           applying some of my studies to building applications.  See below for more info.
           <br/>
           <span className="ib-docs_updated_date">updated: 7-19-2026</span>
@@ -479,15 +483,14 @@ export default function DocsPage() {
           <div className="ib-docs__app-card">
             <h3>the interview app</h3>
             <p>
-              A goofy program that's really two unrelated applications
-              wearing one terminal. The first: take a qualitative test on
-              enterprise IT knowledge and get graded on your answer. The
-              model isn't perfect, but it works as a proof of concept.
-              The second, and better one: interview one of the four
-              Beatles. Publicly available interviews they gave over the
-              years were processed into a RAG system — a fun project, and
-              a real education in how language models actually work. The
-              faux terminal's help command lists everything available.
+              This was a project I did to practice machine learning concepts.  
+              Originally I created a simple interviewing chatbot.  I've since upgraded this to 
+              a bot that simulates one of The Beatles.  It uses a RAG system with vector embeddings.  Basically, 
+              you pick a beatle to talk to, then you ask a question.  The backend system has the embeddings organized 
+              by the specific band member as well as interview quotes either they made or it matches the question topic. 
+              The system finds the embedding that best matches the question and then takes that context and feeds it to 
+              the language model, along with some personality context for the Beatle (they have a sort of cartoonish whimsy). 
+            Then the model serves up a response. 
             </p>
           </div>
           <div className="ib-docs__app-card">
@@ -504,9 +507,8 @@ export default function DocsPage() {
             <h3>the stocks app</h3>
             <p>
               I'm not a stock bro, just putting that out there. I am still working on 
-              this application.  Currently I'm working out what type of ai model or system 
-              I'm planning on using.  Looking at MCP, Jepa and building out a RAG system for a single stock 
-              over a certain period of time.  
+              this application.  The main reason I'm using stock data is because I wanted to have a stream of ever-changing 
+              data to work with and build an application off of.  
             </p>
           </div>
         </div>
