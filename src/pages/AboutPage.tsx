@@ -259,11 +259,6 @@ export default function AboutPage() {
 
       <header className="ib-docs__header">
         <p className="ib-docs__eyebrow">// about</p>
-        <h1 className="ib-docs__title">About</h1>
-        <p className="ib-docs__sub">
-          A little more on who's behind this and why it was built.
-        </p>
-
         <nav className="ib-docs__nav" aria-label="Sections">
           <a href="#who">who</a>
           <a href="#path">path</a>
@@ -369,6 +364,28 @@ export default function AboutPage() {
             I use AI in some applications and to help write code. On the application side, we keep a targeted use case and stay mindful of cost — LLMs aren't free. On the code side, we still review, still test, and always know exactly what our code is doing.
           </p>
         </div>
+      </section>
+      <section id="ai">
+        <p className="ib-docs__section-title">05 · Further Reading</p>
+                <div className="ib-docs__timeline">
+     <a href="/docs"><div className="ib-docs__timeline-item">
+            <div className="ib-docs__timeline-top">
+              <span className="ib-docs__timeline-tag">Docs</span>
+              <span className="ib-docs__timeline-title">About the examples</span>
+            </div>
+            <p className="ib-docs__timeline-desc">
+              The docs section gives further information about the demo apps on this site.  I'm always working on new things when I can.
+              </p>
+          </div></a> 
+      <a href="/scenarios"><div className="ib-docs__timeline-item">
+            <div className="ib-docs__timeline-top">
+              <span className="ib-docs__timeline-tag">Scenarios</span>
+              <span className="ib-docs__timeline-title">Hypothetical plans</span>
+            </div>
+            <p className="ib-docs__timeline-desc">
+              This section like a blog but is more for outlining and laying out some ideas for future projects or just hypothetical scenarios.
+                </p>
+          </div></a></div>
       </section>
     </div>
   );

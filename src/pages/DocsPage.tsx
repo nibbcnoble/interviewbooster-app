@@ -392,7 +392,7 @@ export default function DocsPage() {
         <p className="ib-docs__eyebrow">// docs</p>
         <h1 className="ib-docs__title">Portfolio of Jeffrey Charles Noble</h1>
         <p className="ib-docs__sub" style={{ textAlign: "justify" }}>
-          Thanks for coming by! This application is a landing page and access point for a set of web
+          Thanks for coming by! This is a landing page for a set of web
           applications — most of them portfolio pieces, built to demonstrate
           real working knowledge rather than just describe it.
         </p>

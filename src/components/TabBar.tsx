@@ -19,12 +19,15 @@ interface Tab {
 // three portfolio project tabs so they can be visually grouped/separated
 // from the site-level tabs (Docs, About).
 const TABS: Tab[] = [
-  { label: 'Docs', to: '/docs', matchPaths: ['/', '/docs'] },
-  { label: 'About', to: '/about', matchPaths: ['/about'] },
+  { label: 'About', to: '/about', matchPaths: ['/', '/about'] },
+  { label: 'Docs', to: '/docs', matchPaths: ['/docs'] },
+  { label: 'Scenarios', to: '/scenarios', matchPaths: ['/scenarios'] },
   { label: 'Interview', to: '/interview', matchPaths: ['/interview'], isProject: true },
   { label: 'Study', to: '/study', matchPaths: ['/study'], isProject: true },
   { label: 'Stocks', to: '/stocks', matchPaths: ['/stocks'], isProject: true },
 ];
+
+
 
 function HamburgerIcon() {
   return (
@@ -138,27 +141,34 @@ export default function TabBar({ onLogout, userEmail, isAuthed }: TabBarProps) {
         })}
       </div>
 
-      {isAuthed && (
-        <div className="tab-bar-actions" ref={accountRef}>
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={() => setAccountOpen((v) => !v)}
-            aria-expanded={accountOpen}
-            aria-label="Account menu"
-          >
-            <AccountIcon />
-          </button>
-          {accountOpen && (
-            <div className="dropdown-menu dropdown-menu-right">
-              <div className="dropdown-menu-label">Signed in as: {userEmail}</div>
-              <button type="button" className="dropdown-item logout-button" onClick={handleLogoutClick}>
-                Log out
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      <div className="tab-bar-actions" ref={accountRef}>
+        {isAuthed ? (
+          <>
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={() => setAccountOpen((v) => !v)}
+              aria-expanded={accountOpen}
+              aria-label="Account menu"
+            >
+              <AccountIcon />
+            </button>
+            {accountOpen && (
+              <div className="dropdown-menu dropdown-menu-right">
+                <div className="dropdown-menu-label">Signed in as: {userEmail}</div>
+                <button type="button" className="dropdown-item logout-button" onClick={handleLogoutClick}>
+                  Log out
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <Link to="/interview" className="tab tab-login">
+            Log in
+          </Link>
+        )}
+      </div>
+
     </nav>
   );
 }
