@@ -1,0 +1,29 @@
+---
+title: "Debugging Trust Proxy in Express"
+date: 2026-07-20
+topic: "azure-debugging"
+tags: ["azure", "express", "debugging"]
+published: true
+---
+
+While running the Express API behind Azure App Service's front-end load balancer, cookies marked `secure` were silently failing to persist across requests — even though the traffic was HTTPS end-to-end from the browser's point of view.
+
+## The symptom
+
+Login worked. The session cookie was set. But the very next request came in looking anonymous, as if the cookie had never been sent.
+
+## The cause
+
+Azure App Service terminates TLS at its own front-end and forwards the request to the Node process over plain HTTP, adding an `X-Forwarded-Proto: https` header. Express doesn't know to trust that header by default — so `req.secure` evaluates to `false`, and any cookie configured with `secure: true` gets dropped by the `express-session` (or manual) cookie logic before it's ever written.
+
+## The fix
+
+```js
+app.set('trust proxy', 1);
+```
+
+Setting `trust proxy` tells Express to read `X-Forwarded-*` headers from the first proxy hop and treat the request as secure when that header says so. One line, but it's the kind of thing that's invisible locally (no proxy in front of `localhost`) and only shows up once you deploy.
+
+## Takeaway
+
+Any time auth "works locally but not in the cloud," check the proxy chain first — trust-proxy settings, forwarded headers, and where TLS actually terminates are the usual suspects.

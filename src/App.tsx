@@ -10,6 +10,8 @@ import StudyPage from './pages/StudyPage';
 import StockPage from './pages/StocksPage';
 import DocsPage from './pages/DocsPage';
 import AboutPage from './pages/AboutPage';
+import ScenariosPage from './pages/ScenariosPage';
+
 import { useAuth } from './hooks/useAuth';
 import { useTerminalLog } from './hooks/useTerminalLog';
 import { useCommandHistory } from './hooks/useCommandHistory';
@@ -201,7 +203,7 @@ export default function App() {
       <TabBar onLogout={handleLogout} userEmail={user?.email} isAuthed={isAuthed} />
       <Routes>
         {/* public */}
-        <Route path="/" element={<DocsPage />} />
+        <Route path="/" element={<AboutPage />} />
         <Route path="/docs" element={<DocsPage />} />
         <Route path="/about" element={<AboutPage />} />
 
@@ -209,6 +211,8 @@ export default function App() {
         <Route path="/interview" element={requireAuth(interviewElement)} />
         <Route path="/study" element={requireAuth(<StudyPage />)} />
         <Route path="/stocks" element={requireAuth(<StockPage />)} />
+        <Route path="/scenarios/*" element={requireAuth(<ScenariosPage />)} />
+
 
         {/* anything unrecognized falls back to the public default tab */}
         <Route path="*" element={<Navigate to="/" replace />} />
