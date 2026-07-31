@@ -14,10 +14,13 @@ function escapeHtml(str: string): string {
 function renderInline(text: string): string {
   let out = escapeHtml(text);
   out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
+  out = out.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+  out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
   return out;
 }
+
 
 export function renderMarkdown(markdown: string): string {
   const lines = markdown.replace(/\r\n/g, '\n').split('\n');
