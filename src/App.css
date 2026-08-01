@@ -1178,6 +1178,14 @@ select.study-select option {
   padding: 0;
 }
 
+.scenarios-post-body img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 0 14px;
+  border-radius: 6px;
+}
+
 .scenarios-post-list {
   display: flex;
   flex-direction: column;

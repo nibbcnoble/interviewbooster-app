@@ -1,4 +1,4 @@
-import { buildInitialLog } from '../App';
+import { buildInitialLog } from '../pages/InterviewPage';
 
 describe('buildInitialLog', () => {
   const BANNER0 =
