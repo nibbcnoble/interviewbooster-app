@@ -19,7 +19,6 @@ src/
 ├── components/                 pure presentation
 │   ├── Terminal.jsx            the live shell (title bar, scrollback, input)
 │   ├── TerminalLine.jsx        renders one scrollback entry by `kind`
-│   ├── TerminalFrame.jsx       shared card chrome for the auth screens
 │   ├── LoginScreen.jsx / LoadingScreen.jsx
 │   └── icons/OAuthIcons.jsx    Microsoft/Google marks
 │

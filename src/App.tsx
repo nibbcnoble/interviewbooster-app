@@ -17,7 +17,8 @@ export default function App() {
 
   // Only the loading state blocks the whole app (avoids a flash of content
   // before the session check resolves). Auth is otherwise enforced per-route
-  // below, so "/" and "/docs" stay public and everything else requires login.
+  // below, so "/", "/docs", and "/scenarios" stay public and the project
+  // demos require login.
   if (authStatus === 'loading') return <LoadingScreen />;
 
   const isAuthed = authStatus !== 'anon';
@@ -37,12 +38,12 @@ export default function App() {
         <Route path="/" element={<AboutPage />} />
         <Route path="/docs" element={<DocsPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/scenarios/*" element={<ScenariosPage />} />
 
         {/* gated */}
         <Route path="/interview" element={requireAuth(<InterviewPage onLogout={handleLogout} />)} />
         <Route path="/study" element={requireAuth(<StudyPage />)} />
         <Route path="/stocks" element={requireAuth(<StockPage />)} />
-        <Route path="/scenarios/*" element={requireAuth(<ScenariosPage />)} />
 
 
         {/* anything unrecognized falls back to the public default tab */}

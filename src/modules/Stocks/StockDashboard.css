@@ -1,6 +1,7 @@
-/* StockDashboard.css — restyled to match App.css’s dark/grey/orange look */
+/* StockDashboard.css — dark/grey/orange look, scoped to .sd-root so it
+   doesn't leak into the (light) rest of the site. */
 
-:root {
+.sd-root {
   /* pull in App.css palette */
   --bg: rgb(27,29,27);
   --panel: rgba(255,255,255,0.045);            /* var(--tab-surface) */
@@ -17,26 +18,14 @@
   --topbar-h: 80px;
 }
 
-html,
-body,
-#root {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-}
-
-body {
+.sd-root {
   background:
     radial-gradient(circle at top, rgba(255,138,61,0.06), transparent 28%),
     radial-gradient(circle at bottom right, rgba(255,138,61,0.06), transparent 30%),
     var(--bg);
   color: var(--text);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  overflow: hidden;
-}
-
-.sd-root {
-  width: 100vw;
+  width: 100%;
   height: calc(100vh - var(--topbar-h));
   display: grid;
   grid-template-columns: 180px 1fr;
@@ -291,8 +280,6 @@ h2 { font-size: 14px; }
 
 /* Mobile */
 @media (max-width: 900px) {
-  body { overflow: auto; }
-
   .sd-root {
     width: 100%;
     height: calc(100vh - var(--topbar-h));
