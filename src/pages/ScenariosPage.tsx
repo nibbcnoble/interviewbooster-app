@@ -95,15 +95,30 @@ function ScenariosNav({ activeView }: { activeView: string }) {
   );
 }
 
+function ScenariosLayout({ activeView, children }: { activeView: string; children: React.ReactNode }) {
+  return (
+    <div className="scenarios-shell">
+      <header className="scenarios-header">
+        <p className="scenarios-eyebrow">// technical blog</p>
+        <h1 className="scenarios-heading">Technical Blog</h1>
+        <p className="scenarios-heading-sub">
+          Notes on how this site and its tools are built — architecture, experiments, and the occasional war story.
+        </p>
+      </header>
+      <div className="scenarios-page">
+        <ScenariosNav activeView={activeView} />
+        <main className="scenarios-main">{children}</main>
+      </div>
+    </div>
+  );
+}
+
 function LatestView() {
   const latestPost = getLatestPost();
   return (
-    <div className="scenarios-page">
-      <ScenariosNav activeView="latest" />
-      <main className="scenarios-main">
-        {latestPost ? <PostView post={latestPost} /> : <p className="scenarios-empty">No posts found.</p>}
-      </main>
-    </div>
+    <ScenariosLayout activeView="latest">
+      {latestPost ? <PostView post={latestPost} /> : <p className="scenarios-empty">No posts found.</p>}
+    </ScenariosLayout>
   );
 }
 
@@ -117,12 +132,9 @@ function TopicView() {
   }
 
   return (
-    <div className="scenarios-page">
-      <ScenariosNav activeView={topicSlug} />
-      <main className="scenarios-main">
-        <TopicList topicSlug={topicSlug} />
-      </main>
-    </div>
+    <ScenariosLayout activeView={topicSlug}>
+      <TopicList topicSlug={topicSlug} />
+    </ScenariosLayout>
   );
 }
 
@@ -138,12 +150,9 @@ function PostRouteView() {
   }
 
   return (
-    <div className="scenarios-page">
-      <ScenariosNav activeView={post.slug} />
-      <main className="scenarios-main">
-        <PostView post={post} />
-      </main>
-    </div>
+    <ScenariosLayout activeView={post.slug}>
+      <PostView post={post} />
+    </ScenariosLayout>
   );
 }
 
